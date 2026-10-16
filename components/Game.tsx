@@ -5,11 +5,12 @@ import { characters, type Character } from "@/lib/characters";
 import { sfx } from "@/lib/sfx";
 import Complete from "./game/Complete";
 import Cutscene from "./game/Cutscene";
+import Payment from "./game/Payment";
 import Waiver, { type Receipt } from "./game/Waiver";
 import World from "./game/World";
 import { Hearts, MagicMeter, PixelSprite, Triforce } from "./PixelArt";
 
-type Stage = "title" | "select" | "chosen" | "gameover" | "intro" | "world" | "waiver" | "complete";
+type Stage = "title" | "select" | "chosen" | "gameover" | "pay" | "intro" | "world" | "waiver" | "complete";
 
 const COLS = 3;
 const LAST = characters.length - 1;
@@ -63,7 +64,7 @@ export default function Game() {
       go("chosen");
       setTimeout(() => {
         startedAt.current = Date.now();
-        go("intro");
+        go("pay");
       }, 1800);
     },
     [go]
@@ -108,6 +109,7 @@ export default function Game() {
       )}
       {stage === "chosen" && character && <ChosenScreen character={character} />}
       {stage === "gameover" && character && <GameOverScreen character={character} onRetry={() => go("select")} />}
+      {stage === "pay" && character && <Payment character={character} onDone={() => go("intro")} />}
       {stage === "intro" && <Cutscene onDone={() => go("world")} />}
       {(stage === "world" || stage === "waiver") && character && (
         <World character={character} paused={stage === "waiver"} onWaiver={() => setStage("waiver")} />

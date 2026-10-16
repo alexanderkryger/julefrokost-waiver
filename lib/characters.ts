@@ -70,7 +70,7 @@ export const characters: Character[] = [
     name: "Dien",
     title: "Snowboard Guy",
     ability:
-      "Sidder på et board, så snart der er sne – og ofte også når der ikke er. Kalder enhver trappe for »en fed linje«.",
+      "Sidder på et board, så snart der er sne – og ofte også når der ikke er. Elsker alt med Dragon Ball.",
     item: "Snowboardet",
     hearts: 6,
     magic: 9,
@@ -164,7 +164,7 @@ export const characters: Character[] = [
     name: "Morten",
     title: "Den Fornuftige",
     ability:
-      "Den eneste, der ved, hvor vi bor, hvad klokken er, og hvornår flyet går hjem. Bliver konsekvent ignoreret.",
+      "Den eneste, der ved, hvor vi bor, hvad klokken er, og hvornår flyet går hjem.",
     item: "Vandflasken",
     hearts: 7,
     magic: 6,
