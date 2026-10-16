@@ -22,7 +22,27 @@ function play(notes: number[], step = 0.07, type: OscillatorType = "square") {
   }
 }
 
+// "Vild modstander"-jingle i 8-bit-stil: hurtigt fald, så en drivende bas-figur.
+function encounter() {
+  const run = Array.from({ length: 14 }, (_, i) => 1760 * Math.pow(2, -i / 12));
+  play(run, 0.035);
+  const riff = [
+    196, 392, 196, 370, 196, 349, 196, 330, 220, 440, 220, 415, 233, 466, 247,
+    494,
+  ];
+  setTimeout(() => play(riff, 0.11), 520);
+  setTimeout(
+    () => play([784, 740, 784, 880, 988, 880, 784, 659], 0.11, "triangle"),
+    520,
+  );
+  setTimeout(
+    () => play([784, 740, 784, 880, 988, 1175, 1319, 1568], 0.11, "triangle"),
+    1400,
+  );
+}
+
 export const sfx = {
+  encounter,
   move: () => play([1320], 0.035),
   start: () => play([392, 523, 659, 784, 1047, 1319], 0.06, "triangle"),
   // Lille fanfare når en helt vælges
@@ -32,7 +52,8 @@ export const sfx = {
   burp: () => play([110, 98, 92, 87, 82], 0.09, "sawtooth"),
   door: () => play([330, 262, 196], 0.06),
   denied: () => play([220, 165], 0.12),
-  gameOver: () => play([523, 494, 466, 440, 392, 349, 330, 262, 196, 131], 0.16, "triangle"),
+  gameOver: () =>
+    play([523, 494, 466, 440, 392, 349, 330, 262, 196, 131], 0.16, "triangle"),
   // Zelda-agtigt "gåde løst"
   solved: () => play([784, 740, 622, 440, 415, 659, 831, 1047], 0.11),
   click: () => play([960], 0.03),

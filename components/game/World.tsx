@@ -3,7 +3,7 @@
 import { useCallback, useEffect, useRef, useState } from "react";
 import { characters, type Character } from "@/lib/characters";
 import { pixelFont } from "@/lib/fonts";
-import { bouncer, santa } from "@/lib/npcs";
+import { bouncer, casperHedegaard, danceGirl, santa } from "@/lib/npcs";
 import { canvasOf, drawRows, hash, spriteCanvas } from "@/lib/pixels";
 import { sfx } from "@/lib/sfx";
 import { buildWalkFrames, palette } from "@/lib/sprites";
@@ -11,6 +11,7 @@ import { quests } from "@/lib/quests";
 import Chug from "./Chug";
 import Dialog, { type DialogScript } from "./Dialog";
 import Dinner from "./Dinner";
+import Encounter from "./Encounter";
 import Keypad from "./Keypad";
 import Puzzle from "./Puzzle";
 import QuestList from "./QuestList";
@@ -82,6 +83,11 @@ const BUILDINGS = [
 ];
 const SANTA_POS = { x: 128, y: 46 };
 const BEER_STAND: Rect = { x: 48, y: 96, w: 32, h: 16 };
+// Casper Hedegaard og hans dansepartner midt på gulvet
+const COUPLE = [
+  { x: 144, y: 124 },
+  { x: 160, y: 124 },
+];
 const DANCE_SPOTS = [
   { x: 72, y: 104 },
   { x: 168, y: 100 },
@@ -360,6 +366,7 @@ export default function World({
   const [game, setGame] = useState<MiniGame | null>(null);
   const [toast, setToast] = useState<string | null>(null);
   const [fade, setFade] = useState(false);
+  const [encounter, setEncounter] = useState(false);
   const drunk = progress >= 1;
 
   const state = useRef({
@@ -375,7 +382,7 @@ export default function World({
     cooldown: 0,
   });
 
-  const busy = Boolean(dialog || game || fade || paused);
+  const busy = Boolean(dialog || game || fade || paused || encounter);
   state.current.busy = busy;
   state.current.progress = progress;
 
@@ -400,6 +407,7 @@ export default function World({
       s.y = START[next].y;
       s.target = null;
       setMap(next);
+      if (next === "disco") setEncounter(true);
       setTimeout(() => setFade(false), 250);
     }, 400);
   }, []);
@@ -530,9 +538,13 @@ export default function World({
     const bouncerImg = npcSprite(bouncer)[0];
     const santaImg = npcSprite(santa)[0];
     const dancers = characters
-      .filter((c) => c.id !== character.id && !c.gameOver)
+      .filter((c) => c.id !== character.id && c.id !== "casper" && !c.gameOver)
       .slice(0, DANCE_SPOTS.length)
       .map((c, i) => ({ frames: npcSprite(c), ...DANCE_SPOTS[i] }));
+    const couple = [casperHedegaard, danceGirl].map((c, i) => ({
+      frames: npcSprite(c),
+      ...COUPLE[i],
+    }));
     const font = `8px ${pixelFont.style.fontFamily}`;
 
     const solidAt = (s: typeof state.current, box: Rect) => {
@@ -556,6 +568,7 @@ export default function World({
           : [
               feetBox(SANTA_POS.x, SANTA_POS.y),
               ...DANCE_SPOTS.map((d) => feetBox(d.x, d.y)),
+              ...COUPLE.map((d) => feetBox(d.x, d.y)),
             ];
       return objects.some((o) => hits(box, o));
     };
@@ -690,6 +703,50 @@ export default function World({
           y: SANTA_POS.y,
           draw: () =>
             ctx.drawImage(santaImg, SANTA_POS.x - 10, SANTA_POS.y - 21),
+        });
+        // parret danser i takt og kigger på hinanden; hjerter stiger op
+        const beat = Math.floor(t * 4) % 2;
+        couple.forEach((d, i) => {
+          actors.push({
+            y: d.y,
+            draw: () => {
+              ctx.save();
+              if (i === 1) {
+                ctx.translate(d.x * 2, 0);
+                ctx.scale(-1, 1);
+              }
+              ctx.drawImage(
+                d.frames[beat ? 1 : 2],
+                d.x - 10,
+                d.y - 21 - beat * 2,
+              );
+              ctx.restore();
+            },
+          });
+        });
+        actors.push({
+          y: 999,
+          draw: () => {
+            const phase = (t % 1.6) / 1.6;
+            const hx = Math.round(152 + Math.sin(t * 5) * 2);
+            const hy = Math.round(98 - phase * 18);
+            ctx.globalAlpha = 1 - phase;
+            drawRows(
+              ctx,
+              [
+                ".RR.RR.",
+                "RRRRRRR",
+                "RRRRRRR",
+                ".RRRRR.",
+                "..RRR..",
+                "...R...",
+              ],
+              { R: "#f83870" },
+              hx - 3,
+              hy,
+            );
+            ctx.globalAlpha = 1;
+          },
         });
         dancers.forEach((d, i) => {
           const beat = Math.floor(t * 4 + i) % 2;
@@ -869,6 +926,15 @@ export default function World({
             className={`pointer-events-none absolute inset-0 bg-black transition-opacity duration-300 ${fade ? "opacity-100" : "opacity-0"}`}
           />
           {dialog && <Dialog key={dialog.lines[0]} script={dialog} />}
+          {encounter && (
+            <Encounter
+              hero={character}
+              onDone={() => {
+                state.current.cooldown = 0.4;
+                setEncounter(false);
+              }}
+            />
+          )}
           {toast && (
             <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center px-2">
               <div className="zelda-box animate-[item-get_0.6s_ease-out_both] px-3 py-2 text-center">

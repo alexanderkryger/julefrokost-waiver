@@ -1,7 +1,24 @@
 // Alle helte. Ret frit i titler, egenskaber, items og udseende her.
 
-export type HeadStyle = "short" | "linkcap" | "beanie" | "strawhat" | "spiky" | "buzz" | "slick" | "swoop" | "hood";
-export type Accessory = "sunglasses" | "chain" | "gloves" | "shield" | "mug" | "beard";
+export type HeadStyle =
+  | "short"
+  | "linkcap"
+  | "beanie"
+  | "strawhat"
+  | "spiky"
+  | "buzz"
+  | "slick"
+  | "swoop"
+  | "hood";
+export type Accessory =
+  | "sunglasses"
+  | "chain"
+  | "gloves"
+  | "shield"
+  | "mug"
+  | "beard"
+  | "longhair"
+  | "dress";
 
 export type Character = {
   id: string;
@@ -21,6 +38,8 @@ export type Character = {
     pants?: string;
     hat?: string;
     hatShade?: string;
+    skin?: string;
+    skinShade?: string;
     accessories?: Accessory[];
   };
 };
@@ -212,7 +231,9 @@ export const characters: Character[] = [
   },
 ];
 
-export const characterIds = characters.filter((c) => !c.gameOver).map((c) => c.id);
+export const characterIds = characters
+  .filter((c) => !c.gameOver)
+  .map((c) => c.id);
 
 export function getCharacter(id: string | null | undefined) {
   return characters.find((c) => c.id === id) ?? null;

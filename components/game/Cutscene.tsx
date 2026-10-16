@@ -10,7 +10,7 @@ const RUNWAY_Y = 200; // hjulenes underkant
 const DURATION = 21;
 
 const CAPTIONS: [number, string][] = [
-  [0, "Kl. 05:30. Partybussen er på vej mod lufthavnen..."],
+  [0, "Kl. 05:45. Partybussen er på vej mod lufthavnen..."],
   [4.6, "Alle er ombord. Ingen ved, hvor flyet skal hen."],
   [10, "DESTINATION: ██████████"],
   [13, "Kaptajnen beder venligst om, at man ikke synger med i højtaleren."],

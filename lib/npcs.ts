@@ -1,4 +1,4 @@
-import type { Character } from "./characters";
+import { getCharacter, type Character } from "./characters";
 
 const npc = (id: string, name: string, look: Character["look"]): Character => ({
   id,
@@ -31,4 +31,22 @@ export const santa = npc("santa", "Julemanden", {
   hat: "#d02828",
   hatShade: "#f8f8f8",
   accessories: ["beard"],
+});
+
+// Diskotekets vilde gæst og hans dansepartner.
+export const casperHedegaard = npc(
+  "casper-hedegaard",
+  "Casper Hedegaard",
+  getCharacter("casper")!.look,
+);
+
+export const danceGirl = npc("dance-girl", "Pigen", {
+  head: "short",
+  hair: "#1a1010",
+  hairShade: "#080404",
+  tunic: "#d82850",
+  tunicShade: "#981838",
+  skin: "#6b4226",
+  skinShade: "#4a2c18",
+  accessories: ["longhair", "dress"],
 });

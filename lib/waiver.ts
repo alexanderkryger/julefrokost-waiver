@@ -1,4 +1,5 @@
-export const intro = "Deltagelse sker på eget ansvar. Læs det her – eller lad være, det ændrer intet.";
+export const intro =
+  "Deltagelse sker på eget ansvar. Læs det her – eller lad være, det ændrer intet.";
 
 export const paragraphs: { title: string; body: string }[] = [
   {

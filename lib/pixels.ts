@@ -4,7 +4,7 @@ export function drawRows(
   rows: string[],
   colors: Record<string, string>,
   x = 0,
-  y = 0
+  y = 0,
 ) {
   rows.forEach((row, dy) => {
     for (let dx = 0; dx < row.length; dx++) {
@@ -24,7 +24,11 @@ export function spriteCanvas(rows: string[], colors: Record<string, string>) {
   return c;
 }
 
-export function canvasOf(w: number, h: number, draw: (ctx: CanvasRenderingContext2D) => void) {
+export function canvasOf(
+  w: number,
+  h: number,
+  draw: (ctx: CanvasRenderingContext2D) => void,
+) {
   const c = document.createElement("canvas");
   c.width = w;
   c.height = h;

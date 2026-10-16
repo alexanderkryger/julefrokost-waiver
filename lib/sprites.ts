@@ -111,18 +111,54 @@ const FACE_AND_BODY = [
 ];
 
 // Overlays i polstrede koordinater (bredde 20). "." = rør ikke.
-const ACCESSORIES: Record<Accessory, { x: number; y: number; rows: string[] }> = {
-  sunglasses: { x: PAD + 3, y: 7, rows: ["QqQQQQQqQQ", ".QQ....QQ."] },
-  chain: { x: PAD + 5, y: 13, rows: ["G....G", ".GGGG."] },
-  gloves: { x: PAD + 3, y: 15, rows: ["G........G", "G........G"] },
-  shield: { x: 0, y: 13, rows: [".OOO.", "OLGLO", "OGGGO", "OLGLO", ".OLO.", "..O.."] },
-  mug: { x: PAD + 13, y: 13, rows: [".WWW.", "OWWWO", "OGGGOO", "OGGGOO", "OOOOO."] },
-  beard: { x: PAD + 2, y: 9, rows: ["WWWWWWWWWWWW", ".WWWWWWWWWW.", "..WWWWWWWW..", "....WWWW...."] },
-};
+const ACCESSORIES: Record<Accessory, { x: number; y: number; rows: string[] }> =
+  {
+    sunglasses: { x: PAD + 3, y: 7, rows: ["QqQQQQQqQQ", ".QQ....QQ."] },
+    chain: { x: PAD + 5, y: 13, rows: ["G....G", ".GGGG."] },
+    gloves: { x: PAD + 3, y: 15, rows: ["G........G", "G........G"] },
+    shield: {
+      x: 0,
+      y: 13,
+      rows: [".OOO.", "OLGLO", "OGGGO", "OLGLO", ".OLO.", "..O.."],
+    },
+    mug: {
+      x: PAD + 13,
+      y: 13,
+      rows: [".WWW.", "OWWWO", "OGGGOO", "OGGGOO", "OOOOO."],
+    },
+    beard: {
+      x: PAD + 2,
+      y: 9,
+      rows: ["WWWWWWWWWWWW", ".WWWWWWWWWW.", "..WWWWWWWW..", "....WWWW...."],
+    },
+    longhair: {
+      x: PAD,
+      y: 7,
+      rows: [
+        "OHH..........HHO",
+        "OHH..........HHO",
+        "OHH..........HHO",
+        ".OHH........HHO.",
+        "..OHH......HHO..",
+        "..OHH......HHO..",
+        "...OO......OO...",
+      ],
+    },
+    dress: {
+      x: PAD,
+      y: 16,
+      rows: [
+        "..OSOTTTTTTOSO..",
+        "..OOTTTTTTTTOO..",
+        "..OTTTTTTTTTTO..",
+        ".OttttttttttttO.",
+      ],
+    },
+  };
 
 export function buildSprite(c: Character): string[] {
   const rows = [...HEADS[c.look.head], ...FACE_AND_BODY].map(
-    (r) => ".".repeat(PAD) + r + ".".repeat(PAD)
+    (r) => ".".repeat(PAD) + r + ".".repeat(PAD),
   );
   const grid = rows.map((r) => r.split(""));
   for (const acc of c.look.accessories ?? []) {
@@ -130,8 +166,9 @@ export function buildSprite(c: Character): string[] {
     o.rows.forEach((row, dy) =>
       row.split("").forEach((ch, dx) => {
         const x = o.x + dx;
-        if (ch !== "." && grid[o.y + dy]?.[x] !== undefined) grid[o.y + dy][x] = ch;
-      })
+        if (ch !== "." && grid[o.y + dy]?.[x] !== undefined)
+          grid[o.y + dy][x] = ch;
+      }),
     );
   }
   return grid.map((r) => r.join(""));
@@ -159,8 +196,8 @@ export function palette(c: Character): Record<string, string> {
   const l = c.look;
   return {
     O: "#181010",
-    S: "#f8b880",
-    s: "#c87848",
+    S: l.skin ?? "#f8b880",
+    s: l.skinShade ?? "#c87848",
     E: "#181010",
     H: l.hair,
     h: l.hairShade,
