@@ -72,6 +72,15 @@ const HEADS: Record<HeadStyle, string[]> = {
     "..OHSSSSSSSSHO..",
     ".OHSSSSSSSSSSHO.",
   ],
+  hood: [
+    "................",
+    ".....OOOOOO.....",
+    "....OAAAAAAO....",
+    "...OAAAAAAAAO...",
+    "..OAAaaaaaaAAO..",
+    "..OAaHHHHHHaAO..",
+    ".OAASSSSSSSSAAO.",
+  ],
   swoop: [
     "................",
     ".....OOOOOO.....",
@@ -108,6 +117,7 @@ const ACCESSORIES: Record<Accessory, { x: number; y: number; rows: string[] }> =
   gloves: { x: PAD + 3, y: 15, rows: ["G........G", "G........G"] },
   shield: { x: 0, y: 13, rows: [".OOO.", "OLGLO", "OGGGO", "OLGLO", ".OLO.", "..O.."] },
   mug: { x: PAD + 13, y: 13, rows: [".WWW.", "OWWWO", "OGGGOO", "OGGGOO", "OOOOO."] },
+  beard: { x: PAD + 2, y: 9, rows: ["WWWWWWWWWWWW", ".WWWWWWWWWW.", "..WWWWWWWW..", "....WWWW...."] },
 };
 
 export function buildSprite(c: Character): string[] {
@@ -125,6 +135,24 @@ export function buildSprite(c: Character): string[] {
     );
   }
   return grid.map((r) => r.join(""));
+}
+
+// Gå-animation: [stå, venstre fod løftet, højre fod løftet]
+const STEP_ROWS: [string, string][] = [
+  ["...OKKKOOOOOO...", "...OOOOO........"],
+  ["...OOOOOOKKKO...", "........OOOOO..."],
+];
+
+export function buildWalkFrames(c: Character): string[][] {
+  const base = buildSprite(c);
+  const pad = ".".repeat(PAD);
+  const frames = STEP_ROWS.map(([shoes, sole]) => {
+    const f = [...base];
+    f[SPRITE_H - 2] = pad + shoes + pad;
+    f[SPRITE_H - 1] = pad + sole + pad;
+    return f;
+  });
+  return [base, ...frames];
 }
 
 export function palette(c: Character): Record<string, string> {

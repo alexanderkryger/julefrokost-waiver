@@ -1,59 +1,86 @@
 "use client";
 
-import { createContext, useCallback, useContext, useEffect, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { characters, type Character } from "@/lib/characters";
 import { sfx } from "@/lib/sfx";
+import Complete from "./game/Complete";
+import Cutscene from "./game/Cutscene";
+import Waiver, { type Receipt } from "./game/Waiver";
+import World from "./game/World";
 import { Hearts, MagicMeter, PixelSprite, Triforce } from "./PixelArt";
 
-type Stage = "title" | "select" | "chosen" | "waiver";
-
-const CharacterContext = createContext<{ character: Character | null; changeCharacter: () => void }>({
-  character: null,
-  changeCharacter: () => {},
-});
-
-export const useCharacter = () => useContext(CharacterContext);
+type Stage = "title" | "select" | "chosen" | "gameover" | "intro" | "world" | "waiver" | "complete";
 
 const COLS = 3;
+const LAST = characters.length - 1;
 
-export default function Game({ children }: { children: React.ReactNode }) {
+// Piletaster i gitteret, hvor sidste række kun har én (centreret) helt.
+function moveIndex(i: number, key: string) {
+  const lastRowStart = Math.floor(LAST / COLS) * COLS;
+  const lone = LAST === lastRowStart; // sidste helt står alene i midten
+  switch (key) {
+    case "ArrowLeft":
+      return i % COLS === 0 || i === LAST ? i : i - 1;
+    case "ArrowRight":
+      return i % COLS === COLS - 1 || i === LAST ? i : Math.min(LAST, i + 1);
+    case "ArrowUp":
+      if (lone && i === LAST) return lastRowStart - COLS + 1;
+      return i - COLS >= 0 ? i - COLS : i;
+    case "ArrowDown":
+      if (lone && i >= lastRowStart - COLS && i < lastRowStart) return LAST;
+      return i + COLS <= LAST ? i + COLS : i;
+  }
+  return i;
+}
+
+export default function Game() {
   const [stage, setStage] = useState<Stage>("title");
   const [index, setIndex] = useState(0);
   const [character, setCharacter] = useState<Character | null>(null);
+  const [receipt, setReceipt] = useState<Receipt | null>(null);
+  const [playTime, setPlayTime] = useState(0);
+  const startedAt = useRef(0);
 
-  const start = useCallback(() => {
-    sfx.start();
-    setStage("select");
-  }, []);
-
-  const choose = useCallback((c: Character) => {
-    sfx.select();
-    setCharacter(c);
-    setStage("chosen");
-    setTimeout(() => {
-      setStage("waiver");
-      window.scrollTo({ top: 0 });
-    }, 1800);
-  }, []);
-
-  const changeCharacter = useCallback(() => {
-    setStage("select");
+  const go = useCallback((s: Stage) => {
+    setStage(s);
     window.scrollTo({ top: 0 });
   }, []);
 
+  const start = useCallback(() => {
+    sfx.start();
+    go("select");
+  }, [go]);
+
+  const choose = useCallback(
+    (c: Character) => {
+      setCharacter(c);
+      if (c.gameOver) {
+        sfx.gameOver();
+        go("gameover");
+        return;
+      }
+      sfx.select();
+      go("chosen");
+      setTimeout(() => {
+        startedAt.current = Date.now();
+        go("intro");
+      }, 1800);
+    },
+    [go]
+  );
+
   useEffect(() => {
     function onKey(e: KeyboardEvent) {
-      if (stage === "title" && (e.key === "Enter" || e.key === " ")) {
+      if ((stage === "title" || stage === "gameover") && (e.key === "Enter" || e.key === " ")) {
         e.preventDefault();
-        start();
+        if (stage === "title") start();
+        else go("select");
       } else if (stage === "select") {
-        const moves: Record<string, number> = { ArrowLeft: -1, ArrowRight: 1, ArrowUp: -COLS, ArrowDown: COLS };
-        if (e.key in moves) {
+        if (e.key.startsWith("Arrow")) {
           e.preventDefault();
           setIndex((i) => {
-            const next = i + moves[e.key];
-            if (next < 0 || next >= characters.length) return i;
-            sfx.move();
+            const next = moveIndex(i, e.key);
+            if (next !== i) sfx.move();
             return next;
           });
         } else if (e.key === "Enter" || e.key === " ") {
@@ -64,10 +91,10 @@ export default function Game({ children }: { children: React.ReactNode }) {
     }
     window.addEventListener("keydown", onKey);
     return () => window.removeEventListener("keydown", onKey);
-  }, [stage, index, start, choose]);
+  }, [stage, index, start, choose, go]);
 
   return (
-    <CharacterContext.Provider value={{ character, changeCharacter }}>
+    <Screen wide={stage === "waiver"}>
       {stage === "title" && <TitleScreen onStart={start} />}
       {stage === "select" && (
         <SelectScreen
@@ -80,22 +107,49 @@ export default function Game({ children }: { children: React.ReactNode }) {
         />
       )}
       {stage === "chosen" && character && <ChosenScreen character={character} />}
-      {stage === "waiver" && children}
-    </CharacterContext.Provider>
+      {stage === "gameover" && character && <GameOverScreen character={character} onRetry={() => go("select")} />}
+      {stage === "intro" && <Cutscene onDone={() => go("world")} />}
+      {(stage === "world" || stage === "waiver") && character && (
+        <World character={character} paused={stage === "waiver"} onWaiver={() => setStage("waiver")} />
+      )}
+      {stage === "waiver" && character && (
+        <Waiver
+          character={character}
+          onSigned={(r) => {
+            setReceipt(r);
+            setPlayTime(Date.now() - startedAt.current);
+            go("complete");
+          }}
+        />
+      )}
+      {stage === "complete" && character && receipt && (
+        <Complete
+          character={character}
+          receipt={receipt}
+          playTime={playTime}
+          onRestart={() => {
+            setReceipt(null);
+            go("title");
+          }}
+        />
+      )}
+    </Screen>
   );
 }
 
-function Screen({ children }: { children: React.ReactNode }) {
+function Screen({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
     <div className="retro-screen font-pixel relative min-h-dvh overflow-hidden bg-black text-[#f8f8f8]">
-      <div className="relative z-10 mx-auto flex min-h-dvh w-full max-w-3xl flex-col px-4 py-8">{children}</div>
+      <div className={`relative z-10 mx-auto flex min-h-dvh w-full flex-col px-4 py-6 ${wide ? "max-w-3xl" : "max-w-xl"}`}>
+        {children}
+      </div>
     </div>
   );
 }
 
 function TitleScreen({ onStart }: { onStart: () => void }) {
   return (
-    <Screen>
+    <>
       <button
         type="button"
         onClick={onStart}
@@ -118,7 +172,7 @@ function TitleScreen({ onStart }: { onStart: () => void }) {
       <p className="text-center text-[0.55rem] leading-relaxed tracking-widest text-[#888]">
         © 2026 ARRANGØRERNE · DESTINATION: ??????
       </p>
-    </Screen>
+    </>
   );
 }
 
@@ -133,9 +187,10 @@ function SelectScreen({
 }) {
   const current = characters[index];
   const typed = useTypewriter(current.ability);
+  const lone = LAST % COLS === 0;
 
   return (
-    <Screen>
+    <>
       <div className="zelda-box px-4 py-3 text-center">
         <h1 className="text-sm tracking-[0.2em] text-[#f8d848] sm:text-lg">VÆLG DIN HELT</h1>
       </div>
@@ -150,18 +205,14 @@ function SelectScreen({
               onClick={() => (active ? onChoose(c) : onHighlight(i))}
               onMouseEnter={() => onHighlight(i)}
               aria-pressed={active}
-              className={`zelda-tile relative flex flex-col items-center gap-1 px-1 pt-2 pb-2 ${active ? "is-active" : ""}`}
+              className={`zelda-tile relative flex flex-col items-center gap-1 px-1 pt-2 pb-2 ${active ? "is-active" : ""} ${lone && i === LAST ? "col-start-2" : ""}`}
             >
               {active && (
                 <span className="absolute top-1 left-1.5 animate-[blink_0.6s_steps(2,start)_infinite] text-[0.6rem] text-[#f8d848]">
                   ▶
                 </span>
               )}
-              <PixelSprite
-                character={c}
-                scale={3}
-                className={active ? "animate-[bob_0.5s_steps(2,end)_infinite]" : ""}
-              />
+              <PixelSprite character={c} scale={3} className={active ? "animate-[bob_0.5s_steps(2,end)_infinite]" : ""} />
               <span className={`text-[0.5rem] sm:text-[0.65rem] ${active ? "text-[#f8d848]" : "text-[#f8f8f8]"}`}>
                 {c.name.toUpperCase()}
               </span>
@@ -196,44 +247,60 @@ function SelectScreen({
             </p>
           </div>
         </div>
-        <p className="mt-4 min-h-[5.5em] border-t-2 border-dashed border-[#5878c8]/60 pt-3 text-[0.6rem] leading-[1.9] sm:text-xs">
+        <p className="font-readable mt-4 min-h-[4.2em] border-t-2 border-dashed border-[#5878c8]/60 pt-3 text-[1.25rem] leading-[1.15] sm:text-[1.45rem]">
           <span className="text-[#c8c8c8]">EGENSKAB: </span>
           {typed}
           <span className="animate-[blink_0.6s_steps(2,start)_infinite]">▌</span>
         </p>
       </div>
 
-      <button
-        type="button"
-        onClick={() => onChoose(current)}
-        className="zelda-button mt-5 py-4 text-xs tracking-[0.2em] sm:text-sm"
-      >
+      <button type="button" onClick={() => onChoose(current)} className="zelda-button mt-5 py-4 text-xs tracking-[0.2em] sm:text-sm">
         VÆLG {current.name.toUpperCase()} ▶
       </button>
       <p className="mt-3 text-center text-[0.5rem] text-[#888] sm:text-[0.6rem]">
         Tryk på en helt for at se egenskaber · tryk igen for at vælge
       </p>
-    </Screen>
+    </>
   );
 }
 
 function ChosenScreen({ character }: { character: Character }) {
   return (
-    <Screen>
-      <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
-        <div className="relative">
-          <div className="absolute inset-0 -z-10 animate-[flash_0.3s_steps(2,start)_6] rounded-full bg-[#f8f8f8]/20 blur-xl" />
-          <PixelSprite character={character} scale={8} className="animate-[item-get_0.6s_ease-out_both]" />
-        </div>
-        <div className="zelda-box px-5 py-4 text-xs leading-[2] sm:text-sm">
-          <p>
-            Du har valgt <span className="text-[#f8d848]">{character.name.toUpperCase()}</span>!
-          </p>
-          <p className="text-[#88c8f8]">{character.title}</p>
-          <p className="mt-2 text-[0.6rem] text-[#c8c8c8] sm:text-xs">Nu skal der underskrives...</p>
-        </div>
+    <div className="flex flex-1 flex-col items-center justify-center gap-6 text-center">
+      <div className="relative">
+        <div className="absolute inset-0 -z-10 animate-[flash_0.3s_steps(2,start)_6] rounded-full bg-[#f8f8f8]/20 blur-xl" />
+        <PixelSprite character={character} scale={8} className="animate-[item-get_0.6s_ease-out_both]" />
       </div>
-    </Screen>
+      <div className="zelda-box px-5 py-4 text-xs leading-[2] sm:text-sm">
+        <p>
+          Du har valgt <span className="text-[#f8d848]">{character.name.toUpperCase()}</span>!
+        </p>
+        <p className="text-[#88c8f8]">{character.title}</p>
+        <p className="mt-2 text-[0.6rem] text-[#c8c8c8] sm:text-xs">Eventyret begynder...</p>
+      </div>
+    </div>
+  );
+}
+
+function GameOverScreen({ character, onRetry }: { character: Character; onRetry: () => void }) {
+  return (
+    <div className="gameover flex flex-1 flex-col items-center justify-center gap-8 text-center">
+      <PixelSprite character={character} scale={6} className="animate-[faint_1.6s_steps(8,end)_forwards]" />
+      <h1 className="animate-[drop-in_0.8s_1.4s_ease-out_both] text-3xl text-[#f8f8f8] [text-shadow:4px_4px_0_#a01818] sm:text-5xl">
+        GAME OVER
+      </h1>
+      <div className="zelda-box animate-[drop-in_0.6s_2.2s_ease-out_both] px-5 py-4 text-[0.6rem] leading-[2] sm:text-xs">
+        <p>Du valgte {character.name}.</p>
+        <p className="font-readable mt-1 text-xl text-[#c8c8c8]">Det gør man ikke.</p>
+      </div>
+      <button
+        type="button"
+        onClick={onRetry}
+        className="zelda-button animate-[drop-in_0.6s_2.8s_ease-out_both] px-6 py-4 text-xs tracking-[0.2em] sm:text-sm"
+      >
+        ▶ PRØV IGEN
+      </button>
+    </div>
   );
 }
 
@@ -253,27 +320,4 @@ function useTypewriter(text: string, speed = 22) {
     return () => clearInterval(id);
   }, [text, speed]);
   return text.slice(0, count);
-}
-
-export function PlayerBanner() {
-  const { character, changeCharacter } = useCharacter();
-  if (!character) return null;
-  return (
-    <div className="font-pixel mb-10 flex items-center gap-3 border border-gold/40 bg-ink/60 p-3">
-      <PixelSprite character={character} scale={2} className="shrink-0" />
-      <div className="min-w-0 flex-1 text-[0.55rem] leading-relaxed sm:text-[0.65rem]">
-        <p className="text-gold-dim">SPILLER 1</p>
-        <p className="text-gold-light">
-          {character.name.toUpperCase()} · {character.title}
-        </p>
-      </div>
-      <button
-        type="button"
-        onClick={changeCharacter}
-        className="shrink-0 border border-gold/40 px-2 py-1.5 text-[0.5rem] text-parchment/70 hover:text-gold sm:text-[0.6rem]"
-      >
-        SKIFT
-      </button>
-    </div>
-  );
 }

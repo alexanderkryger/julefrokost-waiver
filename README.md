@@ -1,6 +1,12 @@
-# Ansvarsfraskrivelse – Julefrokost Anno 2026
+# The Legend of Julefrokost – Ansvarsfraskrivelse 2026
 
-Next.js (App Router) + TypeScript + Tailwind.
+Et lille 16-bit-spil (Next.js App Router + TypeScript + Tailwind), hvor man vælger helt,
+flyver til en ukendt destination, bunder en øl og underskriver ansvarsfraskrivelsen på diskoteket.
+
+- Helte, egenskaber og udseende: `lib/characters.ts`
+- Paragrafferne: `lib/waiver.ts`
+- Spilverdenen (kort, hændelser, dialoger): `components/game/World.tsx`
+- Intro-filmen: `components/game/Cutscene.tsx`
 
 ## Lokalt
     npm install

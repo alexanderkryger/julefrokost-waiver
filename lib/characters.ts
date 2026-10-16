@@ -1,7 +1,7 @@
 // Alle helte. Ret frit i titler, egenskaber, items og udseende her.
 
-export type HeadStyle = "short" | "linkcap" | "beanie" | "strawhat" | "spiky" | "buzz" | "slick" | "swoop";
-export type Accessory = "sunglasses" | "chain" | "gloves" | "shield" | "mug";
+export type HeadStyle = "short" | "linkcap" | "beanie" | "strawhat" | "spiky" | "buzz" | "slick" | "swoop" | "hood";
+export type Accessory = "sunglasses" | "chain" | "gloves" | "shield" | "mug" | "beard";
 
 export type Character = {
   id: string;
@@ -11,6 +11,7 @@ export type Character = {
   item: string;
   hearts: number; // udholdenhed, 1–10
   magic: number; // charme, 1–10
+  gameOver?: boolean; // vælges denne helt, er spillet slut
   look: {
     head: HeadStyle;
     hair: string;
@@ -189,9 +190,29 @@ export const characters: Character[] = [
       tunicShade: "#141c40",
     },
   },
+  {
+    id: "phung",
+    name: "Phung",
+    title: "Den Forbudte",
+    ability:
+      "Legenden siger, at ingen har valgt Phung og vendt tilbage. Vælg med omhu.",
+    item: "???",
+    hearts: 1,
+    magic: 1,
+    gameOver: true,
+    look: {
+      head: "hood",
+      hair: "#202020",
+      hairShade: "#101010",
+      tunic: "#383048",
+      tunicShade: "#201828",
+      hat: "#483858",
+      hatShade: "#281c34",
+    },
+  },
 ];
 
-export const characterIds = characters.map((c) => c.id);
+export const characterIds = characters.filter((c) => !c.gameOver).map((c) => c.id);
 
 export function getCharacter(id: string | null | undefined) {
   return characters.find((c) => c.id === id) ?? null;

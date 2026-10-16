@@ -27,4 +27,11 @@ export const sfx = {
   start: () => play([392, 523, 659, 784, 1047, 1319], 0.06, "triangle"),
   // Lille fanfare når en helt vælges
   select: () => play([440, 466, 494, 523, 880, 932, 988, 1047], 0.075),
+  text: () => play([1800], 0.012),
+  gulp: () => play([180, 140], 0.05, "triangle"),
+  burp: () => play([110, 98, 92, 87, 82], 0.09, "sawtooth"),
+  door: () => play([330, 262, 196], 0.06),
+  denied: () => play([220, 165], 0.12),
+  gameOver: () => play([523, 494, 466, 440, 392, 349, 330, 262, 196, 131], 0.16, "triangle"),
+  victory: () => play([523, 523, 523, 523, 415, 466, 523, 466, 523], 0.13),
 };
