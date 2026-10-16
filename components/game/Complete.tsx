@@ -5,7 +5,9 @@ import { useEffect } from "react";
 import { characters, type Character } from "@/lib/characters";
 import { sfx } from "@/lib/sfx";
 import { PixelSprite, Triforce } from "../PixelArt";
+import QuestList from "./QuestList";
 import type { Receipt } from "./Waiver";
+import { quests } from "@/lib/quests";
 
 function formatTime(ms: number) {
   const s = Math.floor(ms / 1000);
@@ -55,8 +57,10 @@ export default function Complete({
         </p>
         <p className="text-[#c8c8c8]">Underskrevet {signedAt}</p>
         <div className="mt-3 grid grid-cols-2 gap-x-3 text-left">
-          <span className="text-[#88c8f8]">ØL BUNDET</span>
-          <span className="text-right">1</span>
+          <span className="text-[#88c8f8]">OPGAVER</span>
+          <span className="text-right">
+            {quests.length}/{quests.length}
+          </span>
           <span className="text-[#88c8f8]">VÆRDIGHED</span>
           <span className="text-right">0 %</span>
           <span className="text-[#88c8f8]">TID</span>
@@ -65,6 +69,8 @@ export default function Complete({
           <span className="text-right">{receipt.id}</span>
         </div>
       </div>
+
+      <QuestList done={quests.length} className="w-full text-left" />
 
       <div className="relative w-full max-w-sm border-4 border-[#3a2210] bg-[#fff8e0] p-2">
         {/* eslint-disable-next-line @next/next/no-img-element */}

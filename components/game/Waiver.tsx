@@ -1,13 +1,11 @@
 "use client";
 
-import Image from "next/image";
 import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import type { Character } from "@/lib/characters";
 import { santa } from "@/lib/npcs";
 import { sfx } from "@/lib/sfx";
-import { paragraphs } from "@/lib/waiver";
-import billede from "@/public/julefrokost-billede.jpg";
+import { intro, paragraphs } from "@/lib/waiver";
 import { PixelSprite } from "../PixelArt";
 
 export type Receipt = { id: string; name: string; signedAt: string; signature: string };
@@ -59,29 +57,8 @@ export default function Waiver({ character, onSigned }: { character: Character; 
           </h1>
           <p className="font-pixel mt-3 text-[0.6rem] text-[#5a3a10] sm:text-xs">JULEFROKOST ANNO 2026</p>
           <p className="font-pixel mt-2 text-[0.5rem] text-[#7a5a30] sm:text-[0.6rem]">DESTINATION: ██████████</p>
-          <p className="mt-5 text-2xl leading-tight">
-            Deltagelse sker udelukkende på eget ansvar. Læs nærværende dokument omhyggeligt – eller lad være, det ændrer
-            intet.
-          </p>
+          <p className="mt-5 text-2xl leading-tight">{intro}</p>
         </header>
-
-        <figure className="mt-6">
-          <div className="border-4 border-[#3a2210] bg-[#3a2210] p-1 shadow-[4px_4px_0_#7a4a1a]">
-            <Image
-              src={billede}
-              alt="De ansvarsfrie deltagere samlet ved det sidste måltid før afrejse til en ukendt destination"
-              placeholder="blur"
-              sizes="(max-width: 768px) 100vw, 640px"
-              className="h-auto w-full"
-            />
-          </div>
-          <figcaption className="mt-2 text-center">
-            <span className="font-pixel text-[0.55rem] text-[#a01818]">BILAG A</span>
-            <span className="block text-xl leading-tight text-[#5a3a10]">
-              Deltagerne, fotograferet forud for Begivenheden. Sidste kendte tilstand af fuld værdighed.
-            </span>
-          </figcaption>
-        </figure>
 
         <section className="mt-8 space-y-6">
           {paragraphs.map((p, i) => (
@@ -90,14 +67,9 @@ export default function Waiver({ character, onSigned }: { character: Character; 
                 <span>§{i + 1}</span>
                 <span className="text-[#3a2210] uppercase">{p.title}</span>
               </h2>
-              <div className="mt-2 space-y-2 border-l-4 border-[#c8a060] pl-3 text-[1.35rem] leading-[1.15] sm:text-[1.5rem]">
-                {p.body.map((text, j) => (
-                  <p key={j}>
-                    <span className="mr-1.5 text-[#7a4a1a]">stk. {j + 1}.</span>
-                    {text}
-                  </p>
-                ))}
-              </div>
+              <p className="mt-2 border-l-4 border-[#c8a060] pl-3 text-[1.35rem] leading-[1.15] sm:text-[1.5rem]">
+                {p.body}
+              </p>
             </div>
           ))}
         </section>
@@ -128,8 +100,7 @@ export default function Waiver({ character, onSigned }: { character: Character; 
               className="pixel-check mt-1"
             />
             <span>
-              Jeg har læst, forstået og accepterer vilkårene i §1–§{paragraphs.length}, og jeg erkender, at jeg ikke har
-              læst dem.
+              Jeg accepterer vilkårene i §1–§{paragraphs.length} – og erkender, at jeg ikke har læst dem.
             </span>
           </label>
 
