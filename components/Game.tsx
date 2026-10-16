@@ -94,7 +94,7 @@ export default function Game() {
   }, [stage, index, start, choose, go]);
 
   return (
-    <Screen wide={stage === "waiver"}>
+    <Screen wide={stage === "waiver" || stage === "world"}>
       {stage === "title" && <TitleScreen onStart={start} />}
       {stage === "select" && (
         <SelectScreen
@@ -140,7 +140,7 @@ export default function Game() {
 function Screen({ children, wide }: { children: React.ReactNode; wide?: boolean }) {
   return (
     <div className="retro-screen font-pixel relative min-h-dvh overflow-hidden bg-black text-[#f8f8f8]">
-      <div className={`relative z-10 mx-auto flex min-h-dvh w-full flex-col px-4 py-6 ${wide ? "max-w-3xl" : "max-w-xl"}`}>
+      <div className={`relative z-10 mx-auto flex min-h-dvh w-full flex-col px-4 py-6 ${wide ? "max-w-xl lg:max-w-4xl" : "max-w-xl"}`}>
         {children}
       </div>
     </div>

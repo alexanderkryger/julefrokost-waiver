@@ -4,12 +4,12 @@ import { useEffect, useRef, useState } from "react";
 import { drawRows, spriteCanvas } from "@/lib/pixels";
 import { sfx } from "@/lib/sfx";
 
-// Aftensmad: grib maden på tallerkenen, undgå salaten.
+// Middag & cocktails: grib mad og drinks med bakken, undgå salaten. Hver cocktail gør dig mere fuld.
 const W = 128;
 const H = 160;
 const GOAL = 6;
 
-const FOOD: { rows: string[]; colors: Record<string, string>; bad?: boolean }[] = [
+const FOOD: { rows: string[]; colors: Record<string, string>; bad?: boolean; drink?: boolean }[] = [
   {
     // kyllingelår
     rows: ["..OOO...", ".OBBBO..", "OBBbBBO.", "OBBBBBO.", ".OBBBO..", "..OWO...", "...OWO..", "....OO.."],
@@ -26,6 +26,18 @@ const FOOD: { rows: string[]; colors: Record<string, string>; bad?: boolean }[] 
     colors: { O: "#201008", S: "#f8e0a0", C: "#c87830", M: "#e8a090", m: "#f8c8b8" },
   },
   {
+    // pink cocktail med paraply
+    drink: true,
+    rows: ["UUU.....", ".UUU....", "OWWWWWWO", ".OPPPPO.", "..OPPO..", "...OO...", "...OO...", "..OOOO.."],
+    colors: { O: "#c8d8f0", W: "#f8f8f8", P: "#f040b0", U: "#f8d848" },
+  },
+  {
+    // blå cocktail med citron
+    drink: true,
+    rows: [".....YY.", "....YYYY", "OWWWWWYO", ".OBBBBO.", "..OBBO..", "...OO...", "...OO...", "..OOOO.."],
+    colors: { O: "#c8d8f0", W: "#f8f8f8", B: "#30c0f0", Y: "#f8e848" },
+  },
+  {
     // salat – bliv væk!
     bad: true,
     rows: ["..G.GG..", ".GGLGGG.", "GGLGGLGG", "GLGGGGLG", "OWWWWWWO", ".OWWWWO.", "..OOOO..", "........"],
@@ -36,11 +48,17 @@ const FOOD: { rows: string[]; colors: Record<string, string>; bad?: boolean }[] 
 const PLATE = ["..OOOOOOOOOOOO..", ".OWWWWWWWWWWWWO.", "OWWwwwwwwwwwwWWO", ".OWWWWWWWWWWWWO.", "..OOOOOOOOOOOO.."];
 const PLATE_COLORS = { O: "#303040", W: "#f8f8f8", w: "#d8d8e0" };
 
+const BAD = FOOD.findIndex((f) => f.bad);
+const DRINKS = FOOD.flatMap((f, i) => (f.drink ? [i] : []));
+const DISHES = FOOD.flatMap((f, i) => (!f.drink && !f.bad ? [i] : []));
+const pick = (xs: number[]) => xs[Math.floor(Math.random() * xs.length)];
+
 export default function Dinner({ onDone, input }: { onDone: () => void; input: () => number }) {
   const canvasRef = useRef<HTMLCanvasElement>(null);
   const [score, setScore] = useState(0);
   const [msg, setMsg] = useState<string | null>(null);
   const [won, setWon] = useState(false);
+  const [drinks, setDrinks] = useState(0);
   const plate = useRef({ x: W / 2, pointer: null as number | null, hold: 0 });
   const onDoneRef = useRef(onDone);
   onDoneRef.current = onDone;
@@ -54,6 +72,7 @@ export default function Dinner({ onDone, input }: { onDone: () => void; input: (
     let items: { x: number; y: number; kind: number; vy: number }[] = [];
     let spawn = 0.4;
     let caught = 0;
+    let drunk = 0;
     let finished = false;
     let last = performance.now();
     let raf = 0;
@@ -68,7 +87,8 @@ export default function Dinner({ onDone, input }: { onDone: () => void; input: (
       const dt = Math.min(0.05, (now - last) / 1000);
       last = now;
       const p = plate.current;
-      const dx = inputRef.current() + p.hold;
+      // jo flere cocktails, jo mere sejler bakken
+      const dx = inputRef.current() + p.hold + (drunk ? Math.sin(now / 300) * 0.25 * Math.min(drunk, 4) : 0);
       if (p.pointer !== null) p.x += Math.sign(p.pointer - p.x) * Math.min(Math.abs(p.pointer - p.x), 180 * dt);
       else p.x += dx * 110 * dt;
       p.x = Math.max(16, Math.min(W - 16, p.x));
@@ -76,11 +96,11 @@ export default function Dinner({ onDone, input }: { onDone: () => void; input: (
       if (!finished) {
         spawn -= dt;
         if (spawn <= 0) {
-          const bad = Math.random() < 0.3;
+          const r = Math.random();
           items.push({
             x: 10 + Math.random() * (W - 20),
             y: -10,
-            kind: bad ? 3 : Math.floor(Math.random() * 3),
+            kind: r < 0.25 ? BAD : r < 0.6 ? pick(DRINKS) : pick(DISHES),
             vy: 38 + caught * 5 + Math.random() * 15,
           });
           spawn = 0.75 + Math.random() * 0.5;
@@ -94,6 +114,12 @@ export default function Dinner({ onDone, input }: { onDone: () => void; input: (
             sfx.yuck();
             caught = Math.max(0, caught - 1);
             flash("SALAT?! −1");
+          } else if (FOOD[it.kind].drink) {
+            sfx.gulp();
+            caught++;
+            drunk++;
+            setDrinks(drunk);
+            flash(["SKÅL!", "PROST!", "BUNDEN!", "CHEERS!"][drunk % 4]);
           } else {
             sfx.catch();
             caught++;
@@ -146,11 +172,15 @@ export default function Dinner({ onDone, input }: { onDone: () => void; input: (
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/85 p-3">
       <div className="zelda-box w-full max-w-xs px-3 py-3 text-center">
-        <p className="text-xs text-[#f8d848] sm:text-sm">{won ? "MÆT!" : "AFTENSMAD"}</p>
+        <p className="text-xs text-[#f8d848] sm:text-sm">{won ? "MÆT OG FULD!" : "MAD & COCKTAILS"}</p>
         <p className="font-readable mt-1 text-lg leading-tight text-[#c8c8c8]">
-          Grib {GOAL} retter med tallerkenen. Undgå salaten.
+          Grib {GOAL} retter og cocktails med bakken. Undgå salaten.
         </p>
-        <div className="relative mt-2 border-4 border-[#f8f8f8]">
+        <div
+          className={`relative mt-2 border-4 border-[#f8f8f8] ${
+            drinks >= 3 ? "animate-[sway-hard_3s_ease-in-out_infinite]" : drinks >= 1 ? "animate-[sway_4s_ease-in-out_infinite]" : ""
+          }`}
+        >
           <canvas
             ref={canvasRef}
             width={W}
@@ -162,13 +192,13 @@ export default function Dinner({ onDone, input }: { onDone: () => void; input: (
             className="pixel-canvas block w-full touch-none"
           />
           {msg && (
-            <p className="pointer-events-none absolute inset-x-0 top-3 text-center text-xs text-[#f8f8f8] [text-shadow:2px_2px_0_#000]">
+            <p className="font-readable pointer-events-none absolute inset-x-0 top-2 text-center text-3xl text-[#f8f8f8] [text-shadow:2px_2px_0_#000]">
               {msg}
             </p>
           )}
         </div>
         <p className="font-readable mt-2 text-xl text-[#f8d848]">
-          RETTER: {score}/{GOAL}
+          GREBET: {score}/{GOAL} · COCKTAILS: {drinks}
         </p>
         <div className="mt-2 flex justify-between" onPointerUp={hold(0)} onPointerLeave={hold(0)} onPointerCancel={hold(0)}>
           <button type="button" onPointerDown={hold(-1)} aria-label="Venstre" className="dpad-btn h-12 w-20 touch-none">

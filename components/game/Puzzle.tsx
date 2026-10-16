@@ -4,7 +4,7 @@ import { useEffect, useState } from "react";
 import { sfx } from "@/lib/sfx";
 import billede from "@/public/julefrokost-billede.jpg";
 
-// Escape room: billedet er skåret i 4 brikker. Tryk på to brikker for at bytte dem.
+// Det låste rum: billedet er skåret i 4 brikker. Tryk på to brikker for at bytte dem.
 const POS = ["0% 0%", "100% 0%", "0% 100%", "100% 100%"];
 
 function shuffled() {
@@ -51,7 +51,7 @@ export default function Puzzle({ onDone }: { onDone: () => void }) {
   return (
     <div className="fixed inset-0 z-40 flex items-center justify-center bg-black/85 p-3">
       <div className="zelda-box w-full max-w-lg px-3 py-4 text-center">
-        <p className="text-xs text-[#f8d848] sm:text-sm">{solved ? "I SLAP UD!" : "ESCAPE ROOM"}</p>
+        <p className="text-xs text-[#f8d848] sm:text-sm">{solved ? "I SLAP UD!" : "SPÆRRET INDE!"}</p>
         <p className="font-readable mt-2 text-xl leading-tight sm:text-2xl">
           {solved ? `Klaret på ${moves} træk.` : "Saml billedet for at slippe ud. Tryk på to brikker for at bytte dem."}
         </p>

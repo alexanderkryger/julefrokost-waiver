@@ -27,7 +27,7 @@ type Rect = { x: number; y: number; w: number; h: number };
 
 // 16×14 fliser. Se TILE_SOLID for hvad man ikke kan gå igennem.
 const MAPS: Record<MapId, string[]> = {
-  // Fire bygninger på rad (1-4), hver med en dør (d): escape room, Airbnb, restaurant, diskotek.
+  // Fire bygninger på rad (1-4), hver med en dør (d): det låste rum, Airbnb, restaurant, diskotek.
   town: [
     "1111222233334444",
     "1111222233334444",
@@ -72,7 +72,7 @@ const PLANE_RECTS: Rect[] = [
   { x: 186, y: 160, w: 24, h: 64 },
 ];
 const BOUNCER_POS = { x: 200, y: 60 };
-const SIGNS = ["ESCAPE", "AIRBNB", "BISTRO", "DISKO"];
+const SIGNS = ["?????", "AIRBNB", "BISTRO", "DISKO"];
 // facadefarver: [mur, fuge, lys i vinduer/dør, skiltets neon]
 const BUILDINGS = [
   { wall: "#4a4a5a", line: "#30303c", glow: "#60f0a0", neon: "#30f860" },
@@ -108,14 +108,36 @@ const TREE = [
   ".....OKKKKO.....",
   "......OOOO......",
 ];
-const TREE_COLORS = { O: "#102810", G: "#2c7a2c", g: "#1c5a1c", L: "#58b048", K: "#6b3a1a" };
+const TREE_COLORS = {
+  O: "#102810",
+  G: "#2c7a2c",
+  g: "#1c5a1c",
+  L: "#58b048",
+  K: "#6b3a1a",
+};
 
-const hits = (a: Rect, b: Rect) => a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
-const feetBox = (x: number, y: number): Rect => ({ x: x - 5, y: y - 5, w: 10, h: 6 });
-const grow = (r: Rect, n: number): Rect => ({ x: r.x - n, y: r.y - n, w: r.w + n * 2, h: r.h + n * 2 });
+const hits = (a: Rect, b: Rect) =>
+  a.x < b.x + b.w && a.x + a.w > b.x && a.y < b.y + b.h && a.y + a.h > b.y;
+const feetBox = (x: number, y: number): Rect => ({
+  x: x - 5,
+  y: y - 5,
+  w: 10,
+  h: 6,
+});
+const grow = (r: Rect, n: number): Rect => ({
+  x: r.x - n,
+  y: r.y - n,
+  w: r.w + n * 2,
+  h: r.h + n * 2,
+});
 
 // ---------- Baggrunde (tegnes én gang pr. kort) ----------
-function drawTile(ctx: CanvasRenderingContext2D, ch: string, tx: number, ty: number) {
+function drawTile(
+  ctx: CanvasRenderingContext2D,
+  ch: string,
+  tx: number,
+  ty: number,
+) {
   const x = tx * T;
   const y = ty * T;
   const px = (dx: number, dy: number, col: string, w = 1, h = 1) => {
@@ -149,11 +171,23 @@ function drawTile(ctx: CanvasRenderingContext2D, ch: string, tx: number, ty: num
       return;
     case "p":
       px(0, 0, "#c8a870", T, T);
-      for (let i = 0; i < 4; i++) px(Math.floor(hash(tx, ty, i) * 14), Math.floor(hash(ty, tx, i) * 14), "#a08050", 2, 1);
+      for (let i = 0; i < 4; i++)
+        px(
+          Math.floor(hash(tx, ty, i) * 14),
+          Math.floor(hash(ty, tx, i) * 14),
+          "#a08050",
+          2,
+          1,
+        );
       return;
     case "t":
       px(0, 0, "#58586a", T, T);
-      for (let i = 0; i < 3; i++) px(Math.floor(hash(tx, ty, i) * 15), Math.floor(hash(ty, tx, i) * 15), "#4a4a5a");
+      for (let i = 0; i < 3; i++)
+        px(
+          Math.floor(hash(tx, ty, i) * 15),
+          Math.floor(hash(ty, tx, i) * 15),
+          "#4a4a5a",
+        );
       if (ty === 12 && tx % 2 === 0) px(2, 7, "#e8e8e8", 10, 2);
       return;
     case "T":
@@ -170,14 +204,18 @@ function drawTile(ctx: CanvasRenderingContext2D, ch: string, tx: number, ty: num
       const b = BUILDINGS[Number(ch) - 1];
       px(0, 0, b.wall, T, T);
       for (let r = 0; r < 4; r++) px(0, r * 4 + 3, b.line, T, 1);
-      for (let r = 0; r < 4; r++) px(((r % 2) * 8 + 4) % T, r * 4, b.line, 1, 3);
+      for (let r = 0; r < 4; r++)
+        px(((r % 2) * 8 + 4) % T, r * 4, b.line, 1, 3);
       if (ch === "2" && ty === 0) {
         // tegltag
         px(0, 0, "#a03030", T, 7);
-        for (let i = 0; i < 4; i++) px(i * 4 + (tx % 2) * 2, 3, "#701818", 2, 1);
+        for (let i = 0; i < 4; i++)
+          px(i * 4 + (tx % 2) * 2, 3, "#701818", 2, 1);
         px(0, 6, "#501010", T, 1);
       }
-      if (ch === "3" && ty === 1) for (let i = 0; i < 4; i++) px(i * 4, 11, i % 2 ? "#f8f8f8" : "#d03030", 4, 5); // markise
+      if (ch === "3" && ty === 1)
+        for (let i = 0; i < 4; i++)
+          px(i * 4, 11, i % 2 ? "#f8f8f8" : "#d03030", 4, 5); // markise
       if (ch === "4" && ty === 2) px(0, 15, "#f040b0", T, 1);
       if (tx % 4 === 3) px(15, 0, "#05030a", 1, T); // mellemrum mellem husene
       return;
@@ -205,9 +243,15 @@ function drawTile(ctx: CanvasRenderingContext2D, ch: string, tx: number, ty: num
       return;
     case "W":
       px(0, 0, "#120a1e", T, T);
-      for (let i = 0; i < 2; i++) px(Math.floor(hash(tx, ty, i) * 15), Math.floor(hash(ty, tx, i) * 15), "#20142e");
+      for (let i = 0; i < 2; i++)
+        px(
+          Math.floor(hash(tx, ty, i) * 15),
+          Math.floor(hash(ty, tx, i) * 15),
+          "#20142e",
+        );
       if (ty === 1) px(0, 14, "#30e0f0", T, 1);
-      if (ty === 13 && (tx === 6 || tx === 9)) px(tx === 6 ? 15 : 0, 0, "#30e0f0", 1, T);
+      if (ty === 13 && (tx === 6 || tx === 9))
+        px(tx === 6 ? 15 : 0, 0, "#30e0f0", 1, T);
       return;
     case "k":
       px(0, 0, "#1c1230", T, T);
@@ -223,7 +267,15 @@ function drawTile(ctx: CanvasRenderingContext2D, ch: string, tx: number, ty: num
         px(3, 6, "#101010", 8, 8);
         px(6, 9, "#c83030", 2, 2);
       }
-      if (ty === 3) for (let i = 0; i < 4; i++) px(2 + i * 3, 7, ["#30e0f0", "#f040b0", "#f8d848", "#30f860"][i], 2, 2);
+      if (ty === 3)
+        for (let i = 0; i < 4; i++)
+          px(
+            2 + i * 3,
+            7,
+            ["#30e0f0", "#f040b0", "#f8d848", "#30f860"][i],
+            2,
+            2,
+          );
       return;
     case "R":
       px(0, 0, "#1c1230", T, T);
@@ -252,7 +304,9 @@ function drawTile(ctx: CanvasRenderingContext2D, ch: string, tx: number, ty: num
 
 function buildBackground(map: MapId) {
   return canvasOf(W, H, (ctx) => {
-    MAPS[map].forEach((row, ty) => row.split("").forEach((ch, tx) => drawTile(ctx, ch, tx, ty)));
+    MAPS[map].forEach((row, ty) =>
+      row.split("").forEach((ch, tx) => drawTile(ctx, ch, tx, ty)),
+    );
     if (map === "town") {
       // vinduer i facaderne
       BUILDINGS.forEach((b, i) => {
@@ -361,7 +415,7 @@ export default function World({
       setTimeout(() => setToast(null), 2200);
       say([...lines, `NÆSTE OPGAVE: ${quests[done].goal}.`]);
     },
-    [say]
+    [say],
   );
 
   // Velkomst ved ankomst
@@ -376,34 +430,49 @@ export default function World({
 
   // Hvad der sker ved hver dør, alt efter hvor langt man er nået.
   const knock = (door: number, s: typeof state.current) => {
-    const need = door + 1; // escape kræver 1 klaret opgave osv.
+    const need = door + 1; // dør 1 kræver 1 klaret opgave osv.
     if (s.progress < need) {
       sfx.denied();
-      return say(
+      return say([
         [
-          [
-            "ESCAPE ROOM: Lukket for ædru gæster. Bund en øl først.",
-            "AIRBNB: Check-in åbner først, når I er sluppet ud af escape room.",
-            "BISTRO: Jeres bord er ikke klar endnu. Se opgavelisten.",
-            "DØRMANDEN: Stop der! Ingen kommer ind på DISKOTEKET, før opgavelisten er klaret.",
-          ][door],
-        ]
-      );
+          "DEN MYSTISKE DØR: Lukket for ædru gæster. Bund en øl først.",
+          "AIRBNB: Check-in åbner først, når I er sluppet ud af det låste rum.",
+          "BISTRO: Jeres bord er ikke klar endnu. Se opgavelisten.",
+          "DØRMANDEN: Stop der! Ingen kommer ind på DISKOTEKET, før opgavelisten er klaret.",
+        ][door],
+      ]);
     }
     if (s.progress > need)
       return say([
-        ["Ingen vil tilbage i det escape room. Nogensinde.", "Du har allerede checket ind. Sengen kan vente.", "Du er mæt. Næsten."][
-          door
-        ],
+        [
+          "Ingen vil tilbage derind. Nogensinde.",
+          "Du har allerede checket ind. Sengen kan vente.",
+          "Du er mæt og fuld. Mest fuld.",
+        ][door],
       ]);
     if (door === 0)
-      say(["Døren smækker i bag dig. Rummet er låst!", "Den eneste ledetråd er et billede, revet i fire stykker..."], () =>
-        setGame("puzzle")
+      say(
+        [
+          "Døren smækker i bag dig. Rummet er låst!",
+          "Den eneste ledetråd er et billede, revet i fire stykker...",
+        ],
+        () => setGame("puzzle"),
       );
-    else if (door === 1) say(["Nøgleboksen kræver en kode.", "Værten har sendt en SMS. Læs hurtigt!"], () => setGame("keypad"));
+    else if (door === 1)
+      say(
+        [
+          "Nøgleboksen kræver en kode.",
+          "Værten har sendt en SMS. Læs hurtigt!",
+        ],
+        () => setGame("keypad"),
+      );
     else if (door === 2)
-      say(["TJENEREN: Velkommen! Køkkenet er lidt... kaotisk i aften.", "Grib maden, før den rammer gulvet. Og hold dig fra salaten."], () =>
-        setGame("dinner")
+      say(
+        [
+          "TJENEREN: Velkommen! Køkkenet og baren er lidt... kaotiske i aften.",
+          "Grib maden og cocktailsene, før de rammer gulvet. Og hold dig fra salaten.",
+        ],
+        () => setGame("dinner"),
       );
     else goTo("disco");
   };
@@ -415,7 +484,9 @@ export default function World({
     if (s.map === "town") {
       if (s.progress === 0 && hits(feet, grow(BEER_STAND, 4))) {
         s.target = null;
-        say(["Du fandt en kold ØL!", "Der er kun én ting at gøre..."], () => setGame("chug"));
+        say(["Du fandt en kold ØL!", "Der er kun én ting at gøre..."], () =>
+          setGame("chug"),
+        );
       } else if (feet.y < 3 * T) {
         const cx = feet.x + feet.w / 2;
         const door = Math.floor(cx / 64);
@@ -425,7 +496,7 @@ export default function World({
         if (!(door === 3 && s.progress >= 4)) s.y += 14;
         knock(door, s);
       }
-    } else if (hits(feet, { x: 104, y: 64, w: 48, h: 10 })) {
+    } else if (hits(feet, { x: 88, y: 62, w: 80, h: 14 })) {
       s.target = null;
       say(
         [
@@ -434,7 +505,7 @@ export default function World({
           "Men før festen kan begynde, skal du underskrive dette pergament.",
           "Læs det grundigt. Eller lad være. Det ændrer intet.",
         ],
-        onWaiver
+        onWaiver,
       );
     } else if (feet.y > 13 * T - 4) {
       s.y -= 10;
@@ -447,9 +518,15 @@ export default function World({
     const canvas = canvasRef.current!;
     const ctx = canvas.getContext("2d")!;
     ctx.imageSmoothingEnabled = false;
-    const bgs: Record<MapId, HTMLCanvasElement> = { town: buildBackground("town"), disco: buildBackground("disco") };
-    const frames = buildWalkFrames(character).map((f) => spriteCanvas(f, palette(character)));
-    const npcSprite = (c: Character) => buildWalkFrames(c).map((f) => spriteCanvas(f, palette(c)));
+    const bgs: Record<MapId, HTMLCanvasElement> = {
+      town: buildBackground("town"),
+      disco: buildBackground("disco"),
+    };
+    const frames = buildWalkFrames(character).map((f) =>
+      spriteCanvas(f, palette(character)),
+    );
+    const npcSprite = (c: Character) =>
+      buildWalkFrames(c).map((f) => spriteCanvas(f, palette(c)));
     const bouncerImg = npcSprite(bouncer)[0];
     const santaImg = npcSprite(santa)[0];
     const dancers = characters
@@ -459,15 +536,27 @@ export default function World({
     const font = `8px ${pixelFont.style.fontFamily}`;
 
     const solidAt = (s: typeof state.current, box: Rect) => {
-      if (box.x < 0 || box.y < 0 || box.x + box.w > W || box.y + box.h > H) return true;
+      if (box.x < 0 || box.y < 0 || box.x + box.w > W || box.y + box.h > H)
+        return true;
       const grid = MAPS[s.map];
-      for (let ty = Math.floor(box.y / T); ty <= Math.floor((box.y + box.h - 1) / T); ty++)
-        for (let tx = Math.floor(box.x / T); tx <= Math.floor((box.x + box.w - 1) / T); tx++)
+      for (
+        let ty = Math.floor(box.y / T);
+        ty <= Math.floor((box.y + box.h - 1) / T);
+        ty++
+      )
+        for (
+          let tx = Math.floor(box.x / T);
+          tx <= Math.floor((box.x + box.w - 1) / T);
+          tx++
+        )
           if (TILE_SOLID.has(grid[ty]?.[tx] ?? "w")) return true;
       const objects: Rect[] =
         s.map === "town"
           ? [...PLANE_RECTS, BEER_STAND, feetBox(BOUNCER_POS.x, BOUNCER_POS.y)]
-          : [feetBox(SANTA_POS.x, SANTA_POS.y), ...DANCE_SPOTS.map((d) => feetBox(d.x, d.y))];
+          : [
+              feetBox(SANTA_POS.x, SANTA_POS.y),
+              ...DANCE_SPOTS.map((d) => feetBox(d.x, d.y)),
+            ];
       return objects.some((o) => hits(box, o));
     };
 
@@ -502,7 +591,12 @@ export default function World({
       if (!s.busy && (dx || dy)) {
         const len = Math.hypot(dx, dy) || 1;
         const step = SPEED * dt;
-        const wob = s.progress >= 1 ? Math.sin(t * 3) * 0.35 : 0;
+        const wob =
+          s.progress >= 4
+            ? Math.sin(t * 2.2) * 0.55
+            : s.progress >= 1
+              ? Math.sin(t * 3) * 0.35
+              : 0;
         const mx = (dx / len + wob * (dy / len)) * step;
         const my = (dy / len - wob * (dx / len)) * step;
         const before = { x: s.x, y: s.y };
@@ -546,13 +640,18 @@ export default function World({
           ctx.fillStyle = "#c8c8c8";
           ctx.fillRect(60, 92, 8, 7);
         }
-        actors.push({ y: BOUNCER_POS.y, draw: () => ctx.drawImage(bouncerImg, BOUNCER_POS.x - 10, BOUNCER_POS.y - 21) });
+        actors.push({
+          y: BOUNCER_POS.y,
+          draw: () =>
+            ctx.drawImage(bouncerImg, BOUNCER_POS.x - 10, BOUNCER_POS.y - 21),
+        });
       } else {
         // danseguld
         const colors = ["#f040b0", "#30e0f0", "#f8d848", "#30f860", "#8040f0"];
         for (let ty = 5; ty <= 9; ty++)
           for (let tx = 3; tx <= 12; tx++) {
-            ctx.fillStyle = colors[(tx * 3 + ty * 5 + Math.floor(t * 3)) % colors.length];
+            ctx.fillStyle =
+              colors[(tx * 3 + ty * 5 + Math.floor(t * 3)) % colors.length];
             ctx.fillRect(tx * T, ty * T, T, T);
             ctx.fillStyle = "rgba(0,0,0,0.35)";
             ctx.fillRect(tx * T, ty * T, T, 1);
@@ -563,8 +662,17 @@ export default function World({
         for (let i = 0; i < 3; i++) {
           const lx = 128 + Math.sin(t * (0.7 + i * 0.3) + i * 2) * 90;
           const ly = 120 + Math.cos(t * (0.9 + i * 0.2) + i) * 50;
-          ctx.fillStyle = ["rgba(240,64,176,0.22)", "rgba(48,224,240,0.22)", "rgba(248,216,72,0.22)"][i];
-          for (const [w, h] of [[28, 12], [20, 18], [12, 22]]) ctx.fillRect(Math.round(lx - w / 2), Math.round(ly - h / 2), w, h);
+          ctx.fillStyle = [
+            "rgba(240,64,176,0.22)",
+            "rgba(48,224,240,0.22)",
+            "rgba(248,216,72,0.22)",
+          ][i];
+          for (const [w, h] of [
+            [28, 12],
+            [20, 18],
+            [12, 22],
+          ])
+            ctx.fillRect(Math.round(lx - w / 2), Math.round(ly - h / 2), w, h);
         }
         ctx.globalCompositeOperation = "source-over";
         // diskokugle
@@ -574,10 +682,15 @@ export default function World({
         ctx.fillRect(120, 8, 16, 12);
         ctx.fillRect(122, 6, 12, 16);
         for (let i = 0; i < 6; i++) {
-          ctx.fillStyle = hash(i, Math.floor(t * 6)) > 0.5 ? "#f8f8f8" : "#8888a0";
+          ctx.fillStyle =
+            hash(i, Math.floor(t * 6)) > 0.5 ? "#f8f8f8" : "#8888a0";
           ctx.fillRect(122 + (i % 3) * 4, 9 + Math.floor(i / 3) * 5, 3, 3);
         }
-        actors.push({ y: SANTA_POS.y, draw: () => ctx.drawImage(santaImg, SANTA_POS.x - 10, SANTA_POS.y - 21) });
+        actors.push({
+          y: SANTA_POS.y,
+          draw: () =>
+            ctx.drawImage(santaImg, SANTA_POS.x - 10, SANTA_POS.y - 21),
+        });
         dancers.forEach((d, i) => {
           const beat = Math.floor(t * 4 + i) % 2;
           actors.push({
@@ -588,7 +701,11 @@ export default function World({
                 ctx.translate(d.x * 2, 0);
                 ctx.scale(-1, 1);
               }
-              ctx.drawImage(d.frames[beat ? 1 : 2], d.x - 10, d.y - 21 - beat * 2);
+              ctx.drawImage(
+                d.frames[beat ? 1 : 2],
+                d.x - 10,
+                d.y - 21 - beat * 2,
+              );
               ctx.restore();
             },
           });
@@ -601,7 +718,11 @@ export default function World({
         draw: () => {
           ctx.fillStyle = "rgba(0,0,0,0.3)";
           ctx.fillRect(Math.round(s.x) - 5, Math.round(s.y) - 1, 10, 2);
-          ctx.drawImage(frames[frame], Math.round(s.x) - 10, Math.round(s.y) - 21 - (s.moving && frame === 1 ? 1 : 0));
+          ctx.drawImage(
+            frames[frame],
+            Math.round(s.x) - 10,
+            Math.round(s.y) - 21 - (s.moving && frame === 1 ? 1 : 0),
+          );
         },
       });
       actors.sort((a, b) => a.y - b.y).forEach((a) => a.draw());
@@ -699,97 +820,152 @@ export default function World({
   const clearPad = () => {
     state.current.pad = { x: 0, y: 0 };
   };
-  const pressA = () => window.dispatchEvent(new KeyboardEvent("keydown", { key: "x" }));
+  const pressA = () =>
+    window.dispatchEvent(new KeyboardEvent("keydown", { key: "x" }));
 
   return (
-    <div className="select-none">
-      {/* HUD */}
-      <div className="mb-2 flex items-start gap-2">
+    <div className="select-none lg:grid lg:grid-cols-[minmax(0,1fr)_17rem] lg:items-start lg:gap-6">
+      {/* HUD – over spillet på mobil, i højre side på desktop */}
+      <div className="mb-2 flex items-start gap-2 lg:sticky lg:top-6 lg:order-2 lg:mb-0 lg:flex-col lg:items-stretch lg:gap-4">
         <QuestList done={progress} className="flex-1" />
-        <div className="font-readable shrink-0 pt-2 text-right text-lg leading-none sm:text-xl">
+        <div className="font-readable shrink-0 pt-2 text-right text-lg leading-none sm:text-xl lg:pt-0 lg:text-left">
           <p className="text-[#e82828]">- LIFE -</p>
           <span className="mt-1 inline-block">
             <Hearts count={character.hearts} size={10} />
           </span>
           <p className="mt-1 text-[#f8d848]">ØL × {drunk ? 1 : 0}</p>
         </div>
+        <p className="font-readable hidden text-lg leading-tight text-[#888] lg:block">
+          PILE / WASD: gå
+          <br />
+          ENTER / X: videre
+          <br />
+          Eller klik, hvor du vil hen.
+        </p>
       </div>
-      {map === "disco" && (
-        <p className="font-readable mb-2 text-center text-xl leading-none text-[#f8d848]">MÅL: Find Julemanden</p>
-      )}
 
-      <div className="relative overflow-hidden border-4 border-[#f8f8f8] shadow-[0_0_0_3px_#283890]">
-        <canvas
-          ref={canvasRef}
-          width={W}
-          height={H}
-          onPointerDown={tapToMove}
-          className={`pixel-canvas block w-full touch-none ${drunk ? "animate-[sway_4s_ease-in-out_infinite]" : ""}`}
-        />
-        <div
-          className={`pointer-events-none absolute inset-0 bg-black transition-opacity duration-300 ${fade ? "opacity-100" : "opacity-0"}`}
-        />
-        {dialog && <Dialog key={dialog.lines[0]} script={dialog} />}
-        {toast && (
-          <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center px-2">
-            <div className="zelda-box animate-[item-get_0.6s_ease-out_both] px-3 py-2 text-center">
-              <p className="text-[0.55rem] text-[#30f860] sm:text-xs">OPGAVE KLARET!</p>
-              <p className="font-readable mt-1 text-lg leading-none">{toast}</p>
+      <div className="lg:order-1">
+        {map === "disco" && (
+          <p className="font-readable mb-2 text-center text-xl leading-none text-[#f8d848]">
+            MÅL: Find Julemanden
+          </p>
+        )}
+
+        <div className="relative overflow-hidden border-4 border-[#f8f8f8] shadow-[0_0_0_3px_#283890]">
+          <canvas
+            ref={canvasRef}
+            width={W}
+            height={H}
+            onPointerDown={tapToMove}
+            className={`pixel-canvas block w-full touch-none ${
+              progress >= 4
+                ? "animate-[sway-hard_3s_ease-in-out_infinite]"
+                : drunk
+                  ? "animate-[sway_4s_ease-in-out_infinite]"
+                  : ""
+            }`}
+          />
+          <div
+            className={`pointer-events-none absolute inset-0 bg-black transition-opacity duration-300 ${fade ? "opacity-100" : "opacity-0"}`}
+          />
+          {dialog && <Dialog key={dialog.lines[0]} script={dialog} />}
+          {toast && (
+            <div className="pointer-events-none absolute inset-x-0 top-3 z-20 flex justify-center px-2">
+              <div className="zelda-box animate-[item-get_0.6s_ease-out_both] px-3 py-2 text-center">
+                <p className="text-[0.55rem] text-[#30f860] sm:text-xs">
+                  OPGAVE KLARET!
+                </p>
+                <p className="font-readable mt-1 text-lg leading-none">
+                  {toast}
+                </p>
+              </div>
             </div>
-          </div>
-        )}
-        {game === "chug" && (
-          <Chug onDone={() => finish(["Du har bundet øllen! Verden føles lidt blødere i kanterne."])} />
-        )}
-      </div>
-      {game === "puzzle" && <Puzzle onDone={() => finish(["Klik! I slap ud af escape room. Med 59 minutter til overs. Næsten."])} />}
-      {game === "keypad" && <Keypad onDone={() => finish(["Bagagen er smidt. Sengene er fordelt. Ingen er enige."])} />}
-      {game === "dinner" && (
-        <Dinner
-          input={() => {
-            const st = state.current;
-            return st.pad.x + (st.keys.has("right") ? 1 : 0) - (st.keys.has("left") ? 1 : 0);
-          }}
-          onDone={() => finish(["Maven er fuld. Tid til at danse den af."])}
-        />
-      )}
-
-      {/* Kontroller */}
-      <div className="mt-4 flex items-center justify-between px-2">
-        <div className="relative h-32 w-32" onPointerUp={clearPad} onPointerLeave={clearPad} onPointerCancel={clearPad}>
-          {(
-            [
-              ["▲", 0, -1, "left-1/2 top-0 -translate-x-1/2"],
-              ["▼", 0, 1, "left-1/2 bottom-0 -translate-x-1/2"],
-              ["◀", -1, 0, "left-0 top-1/2 -translate-y-1/2"],
-              ["▶", 1, 0, "right-0 top-1/2 -translate-y-1/2"],
-            ] as const
-          ).map(([label, x, y, pos]) => (
-            <button
-              key={label}
-              type="button"
-              aria-label={label}
-              onPointerDown={(e) => {
-                e.preventDefault();
-                setPad(x, y)();
-              }}
-              className={`dpad-btn absolute h-11 w-11 touch-none ${pos}`}
-            >
-              {label}
-            </button>
-          ))}
-          <span className="absolute top-1/2 left-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2 bg-[#282838]" />
+          )}
+          {game === "chug" && (
+            <Chug
+              onDone={() =>
+                finish([
+                  "Du har bundet øllen! Verden føles lidt blødere i kanterne.",
+                ])
+              }
+            />
+          )}
         </div>
-        <button
-          type="button"
-          onPointerDown={(e) => {
-            e.preventDefault();
-            pressA();
-          }}
-          className="a-btn h-16 w-16 touch-none rounded-full text-sm"
-        >
-          A
-        </button>
+        {game === "puzzle" && (
+          <Puzzle
+            onDone={() =>
+              finish(["Klik! I slap ud. Med 59 minutter til overs. Næsten."])
+            }
+          />
+        )}
+        {game === "keypad" && (
+          <Keypad
+            onDone={() =>
+              finish(["Bagagen er smidt. Sengene er fordelt. Ingen er enige."])
+            }
+          />
+        )}
+        {game === "dinner" && (
+          <Dinner
+            input={() => {
+              const st = state.current;
+              return (
+                st.pad.x +
+                (st.keys.has("right") ? 1 : 0) -
+                (st.keys.has("left") ? 1 : 0)
+              );
+            }}
+            onDone={() =>
+              finish([
+                "Maven er fuld. Det samme er du.",
+                "Verden drejer en del mere nu.",
+              ])
+            }
+          />
+        )}
+
+        {/* Kontroller */}
+        <div className="mt-4 flex items-center justify-between px-2 lg:hidden">
+          <div
+            className="relative h-32 w-32"
+            onPointerUp={clearPad}
+            onPointerLeave={clearPad}
+            onPointerCancel={clearPad}
+          >
+            {(
+              [
+                ["▲", 0, -1, "left-1/2 top-0 -translate-x-1/2"],
+                ["▼", 0, 1, "left-1/2 bottom-0 -translate-x-1/2"],
+                ["◀", -1, 0, "left-0 top-1/2 -translate-y-1/2"],
+                ["▶", 1, 0, "right-0 top-1/2 -translate-y-1/2"],
+              ] as const
+            ).map(([label, x, y, pos]) => (
+              <button
+                key={label}
+                type="button"
+                aria-label={label}
+                onPointerDown={(e) => {
+                  e.preventDefault();
+                  setPad(x, y)();
+                }}
+                className={`dpad-btn absolute h-11 w-11 touch-none ${pos}`}
+              >
+                {label}
+              </button>
+            ))}
+            <span className="absolute top-1/2 left-1/2 h-11 w-11 -translate-x-1/2 -translate-y-1/2 bg-[#282838]" />
+          </div>
+          <button
+            type="button"
+            onPointerDown={(e) => {
+              e.preventDefault();
+              pressA();
+            }}
+            className="a-btn h-16 w-16 touch-none rounded-full text-sm"
+          >
+            A
+          </button>
+        </div>
       </div>
     </div>
   );

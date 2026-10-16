@@ -1,8 +1,8 @@
 # The Legend of Julefrokost – Ansvarsfraskrivelse 2026
 
 Et lille 16-bit-spil (Next.js App Router + TypeScript + Tailwind), hvor man vælger helt,
-flyver til en ukendt destination og klarer opgavelisten: bund en øl, escape room (puslespil),
-Airbnb-check-in (kode), aftensmad (grib maden) og til sidst diskoteket, hvor Julemanden har ansvarsfraskrivelsen.
+flyver til en ukendt destination og klarer opgavelisten: bund en øl, det låste rum (puslespil),
+Airbnb-check-in (kode), middag & cocktails (grib maden og drinksene) og til sidst diskoteket, hvor Julemanden har ansvarsfraskrivelsen.
 
 - Helte, egenskaber og udseende: `lib/characters.ts`
 - Paragrafferne: `lib/waiver.ts`

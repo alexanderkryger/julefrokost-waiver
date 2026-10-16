@@ -141,6 +141,27 @@ body {
     transform: rotate(0.6deg) scale(1.01);
   }
 }
+
+/* efter cocktails: verden drejer for alvor */
+@keyframes sway-hard {
+  0%,
+  100% {
+    transform: rotate(-2deg) translate(-4px, 1px) scale(1.04);
+    filter: blur(0);
+  }
+  25% {
+    transform: rotate(1deg) translate(3px, -2px) scale(1.05);
+    filter: blur(0.6px);
+  }
+  50% {
+    transform: rotate(2.2deg) translate(4px, 1px) scale(1.04);
+    filter: blur(0);
+  }
+  75% {
+    transform: rotate(-0.8deg) translate(-2px, 2px) scale(1.05);
+    filter: blur(0.6px);
+  }
+}
 @keyframes tf-glow {
   0%,
   100% {
