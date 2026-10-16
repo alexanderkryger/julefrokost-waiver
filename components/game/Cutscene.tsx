@@ -12,8 +12,11 @@ const DURATION = 21;
 const CAPTIONS: [number, string][] = [
   [0, "Kl. 05:45. Partybussen er på vej mod lufthavnen..."],
   [4.6, "Alle er ombord. Ingen ved, hvor flyet skal hen."],
-  [10, "DESTINATION: ██████████"],
-  [13, "Kaptajnen beder venligst om, at man ikke synger med i højtaleren."],
+  [9.5, "DESTINATION: ██████████"],
+  [
+    12,
+    "PILOTEN: Den næste, der spørger »Are we there yet?«, bliver smidt af flyet.",
+  ],
   [15.5, "Landet. Et sted. Det er nat, og der dufter af øl."],
 ];
 
@@ -25,7 +28,8 @@ function makePlane() {
       c.fillRect(x, y, w, h);
     };
     // halefinne
-    for (let i = 0; i < 13; i++) r(6 + Math.floor(i * 0.6), i, 12 - Math.floor(i * 0.3), 1, "#e8e8f0");
+    for (let i = 0; i < 13; i++)
+      r(6 + Math.floor(i * 0.6), i, 12 - Math.floor(i * 0.3), 1, "#e8e8f0");
     r(5, 0, 1, 13, "#181820");
     r(9, 3, 3, 1, "#d03030");
     r(11, 4, 1, 2, "#d03030");
@@ -92,7 +96,11 @@ function makeCloud(w: number) {
 }
 
 // ---------- Tegnehjælpere ----------
-function bands(ctx: CanvasRenderingContext2D, colors: string[], height: number) {
+function bands(
+  ctx: CanvasRenderingContext2D,
+  colors: string[],
+  height: number,
+) {
   const h = Math.ceil(height / colors.length);
   colors.forEach((col, i) => {
     ctx.fillStyle = col;
@@ -105,21 +113,43 @@ function bands(ctx: CanvasRenderingContext2D, colors: string[], height: number) 
   });
 }
 
-function drawRunway(ctx: CanvasRenderingContext2D, grass: string, tarmac: string, offset = 0) {
+function drawRunway(
+  ctx: CanvasRenderingContext2D,
+  grass: string,
+  tarmac: string,
+  offset = 0,
+) {
   ctx.fillStyle = grass;
   ctx.fillRect(0, GROUND, W, H - GROUND);
   ctx.fillStyle = tarmac;
   ctx.fillRect(0, 184, W, 22);
   ctx.fillStyle = "#e8e8e8";
-  for (let x = -((offset % 32) + 32) % 32; x < W; x += 32) ctx.fillRect(x, 194, 14, 2);
+  for (let x = -((offset % 32) + 32) % 32; x < W; x += 32)
+    ctx.fillRect(x, 194, 14, 2);
 }
 
 // Tegn flyet med pixeleret "næse op"-hældning (søjle-forskydning i stedet for rotation)
-function drawPlane(ctx: CanvasRenderingContext2D, plane: HTMLCanvasElement, x: number, y: number, slope = 0) {
+function drawPlane(
+  ctx: CanvasRenderingContext2D,
+  plane: HTMLCanvasElement,
+  x: number,
+  y: number,
+  slope = 0,
+) {
   const bottom = y - plane.height;
   for (let sx = 0; sx < plane.width; sx += 2) {
     const dy = Math.round(((sx - plane.width / 2) * slope) / 2) * 2;
-    ctx.drawImage(plane, sx, 0, 2, plane.height, Math.round(x + sx), Math.round(bottom - dy), 2, plane.height);
+    ctx.drawImage(
+      plane,
+      sx,
+      0,
+      2,
+      plane.height,
+      Math.round(x + sx),
+      Math.round(bottom - dy),
+      2,
+      plane.height,
+    );
   }
 }
 
@@ -154,7 +184,11 @@ export default function Cutscene({ onDone }: { onDone: () => void }) {
 
       if (t < 10) {
         // --- Daggry i lufthavnen ---
-        bands(ctx, ["#2a2050", "#4a3070", "#7a4080", "#c06078", "#f09868", "#f8c080"], GROUND);
+        bands(
+          ctx,
+          ["#2a2050", "#4a3070", "#7a4080", "#c06078", "#f09868", "#f8c080"],
+          GROUND,
+        );
         ctx.fillStyle = "#f8e0a0";
         ctx.fillRect(196, 120, 22, 22); // solopgang
         ctx.fillStyle = "#3a2848";
@@ -191,12 +225,20 @@ export default function Cutscene({ onDone }: { onDone: () => void }) {
         if (t < 6) {
           const bx = -60 + 150 * ease(t / 4.2);
           ctx.globalAlpha = t > 4.6 ? Math.max(0, 1 - (t - 4.6) / 1) : 1;
-          ctx.drawImage(bus, Math.round(bx), RUNWAY_Y - bus.height + 1 + (Math.floor(t * 8) % 2));
+          ctx.drawImage(
+            bus,
+            Math.round(bx),
+            RUNWAY_Y - bus.height + 1 + (Math.floor(t * 8) % 2),
+          );
           ctx.globalAlpha = 1;
         }
       } else if (t < 15) {
         // --- I luften ---
-        bands(ctx, ["#2850b0", "#3868c8", "#5088d8", "#70a8e8", "#98c8f0", "#c0e0f8"], H);
+        bands(
+          ctx,
+          ["#2850b0", "#3868c8", "#5088d8", "#70a8e8", "#98c8f0", "#c0e0f8"],
+          H,
+        );
         const k = t - 10;
         clouds.forEach((c, i) => {
           for (let n = 0; n < 3; n++) {
@@ -214,11 +256,20 @@ export default function Cutscene({ onDone }: { onDone: () => void }) {
         }
       } else {
         // --- Natlig landing på Destinationen ---
-        bands(ctx, ["#060614", "#0c0c24", "#121238", "#1a1a4c", "#24205c"], GROUND);
+        bands(
+          ctx,
+          ["#060614", "#0c0c24", "#121238", "#1a1a4c", "#24205c"],
+          GROUND,
+        );
         for (let i = 0; i < 40; i++) {
           if (hash(i, Math.floor(t * 3)) > 0.9) continue;
           ctx.fillStyle = "#f8f8f8";
-          ctx.fillRect(Math.floor(hash(i, 7) * W), Math.floor(hash(i, 8) * 110), 1, 1);
+          ctx.fillRect(
+            Math.floor(hash(i, 7) * W),
+            Math.floor(hash(i, 8) * 110),
+            1,
+            1,
+          );
         }
         skyline.forEach((b, i) => {
           ctx.fillStyle = "#0a0a1a";
@@ -226,7 +277,9 @@ export default function Cutscene({ onDone }: { onDone: () => void }) {
           for (let wy = GROUND - b.h + 4; wy < GROUND - 4; wy += 6)
             for (let wx = b.x + 2; wx < b.x + b.w - 2; wx += 4)
               if (hash(wx, wy, i) > 0.55) {
-                ctx.fillStyle = ["#f8d860", "#f060c0", "#40e0f0"][Math.floor(hash(wx, wy) * 3)];
+                ctx.fillStyle = ["#f8d860", "#f060c0", "#40e0f0"][
+                  Math.floor(hash(wx, wy) * 3)
+                ];
                 ctx.fillRect(wx, wy, 2, 2);
               }
         });
@@ -244,7 +297,12 @@ export default function Cutscene({ onDone }: { onDone: () => void }) {
         const roll = ease(Math.max(0, k - 3.2) / 2.3);
         const px = -110 + 180 * descend + 20 * roll;
         const py = 70 + (RUNWAY_Y - 70) * descend;
-        drawRunway(ctx, "#1a2a24", "#303040", k < 3.2 ? k * 60 : 190 + roll * 20);
+        drawRunway(
+          ctx,
+          "#1a2a24",
+          "#303040",
+          k < 3.2 ? k * 60 : 190 + roll * 20,
+        );
         drawPlane(ctx, plane, px, py, 0);
         // landingslys
         ctx.fillStyle = Math.floor(t * 6) % 2 ? "#f83030" : "#30f860";
@@ -270,7 +328,9 @@ export default function Cutscene({ onDone }: { onDone: () => void }) {
         height={H}
         className="pixel-canvas block w-full border-4 border-[#f8f8f8] shadow-[0_0_0_3px_#283890]"
       />
-      <div className="zelda-box font-readable mt-5 min-h-[4.6rem] px-3 py-2 text-[1.2rem] leading-[1.15] sm:text-[1.45rem]">{caption}</div>
+      <div className="zelda-box font-readable mt-5 min-h-[4.6rem] px-3 py-2 text-[1.2rem] leading-[1.15] sm:text-[1.45rem]">
+        {caption}
+      </div>
       <button
         type="button"
         onClick={() => doneRef.current()}

@@ -68,10 +68,10 @@ export const characters: Character[] = [
   {
     id: "dien",
     name: "Dien",
-    title: "Natteravnen",
+    title: "Snowboard Guy",
     ability:
-      "Bliver stærkere for hver time efter midnat. Ved kl. 04 er han praktisk talt udødelig.",
-    item: "Lampen",
+      "Sidder på et board, så snart der er sne – og ofte også når der ikke er. Kalder enhver trappe for »en fed linje«.",
+    item: "Snowboardet",
     hearts: 6,
     magic: 9,
     look: {
@@ -82,15 +82,16 @@ export const characters: Character[] = [
       tunicShade: "#282838",
       hat: "#683070",
       hatShade: "#401848",
+      accessories: ["sunglasses"],
     },
   },
   {
     id: "jacob",
     name: "Jacob",
-    title: "Navigatøren",
+    title: "Medarrangøren",
     ability:
-      "Finder altid vej hjem. Ingen – heller ikke Jacob selv – ved hvordan.",
-    item: "Det Magiske Kort",
+      "Sørger personligt for, at alle holder en promille på over 2,0 hele turen. Ingen pauser. Intet vand.",
+    item: "Promillemåleren",
     hearts: 7,
     magic: 5,
     look: {
@@ -99,7 +100,7 @@ export const characters: Character[] = [
       hairShade: "#482010",
       tunic: "#3870d0",
       tunicShade: "#204088",
-      accessories: ["shield"],
+      accessories: ["mug"],
     },
   },
   {
@@ -123,27 +124,30 @@ export const characters: Character[] = [
   {
     id: "viet",
     name: "Viet",
-    title: "Dansegulvets Hersker",
+    title: "Grab Guy",
     ability:
-      "+50 % rytme, −100 % skam. Kan ikke stoppes, når først de rigtige 90'er-hits kører.",
-    item: "Pegasusstøvlerne",
+      "Går rundt i fuld Grab-uniform. Ingen ved, om han arbejder der. Kan skaffe et lift til hvor som helst på tre minutter.",
+    item: "Grab-hjelmen",
     hearts: 6,
     magic: 8,
     look: {
-      head: "spiky",
+      head: "beanie",
       hair: "#202020",
       hairShade: "#080808",
-      tunic: "#d03030",
-      tunicShade: "#881818",
+      tunic: "#00b14f",
+      tunicShade: "#00753a",
+      pants: "#283038",
+      hat: "#00b14f",
+      hatShade: "#f8f8f8",
     },
   },
   {
     id: "uros",
     name: "Uros",
-    title: "Bjørnen",
+    title: "Mr. Ringer Hjem",
     ability:
-      "Påstår at være immun over for tømmermænd. Påstanden er aldrig blevet bekræftet af uafhængige kilder.",
-    item: "Kraftbehandsken",
+      "Ringer hjem hver aften og fortæller præcis, hvad vi har lavet. Paragraffen om tavshedspligt er skrevet til ham.",
+    item: "Telefonen",
     hearts: 10,
     magic: 3,
     look: {
@@ -158,10 +162,10 @@ export const characters: Character[] = [
   {
     id: "morten",
     name: "Morten",
-    title: "Bankeren",
+    title: "Den Fornuftige",
     ability:
-      "Giver første omgang. Husker det ikke. Giver derfor også anden omgang.",
-    item: "Rupee-pungen",
+      "Den eneste, der ved, hvor vi bor, hvad klokken er, og hvornår flyet går hjem. Bliver konsekvent ignoreret.",
+    item: "Vandflasken",
     hearts: 7,
     magic: 6,
     look: {
@@ -176,10 +180,10 @@ export const characters: Character[] = [
   {
     id: "casper",
     name: "Casper",
-    title: "Diplomaten",
+    title: "Dance Guy",
     ability:
-      "Kan tale sig ind på enhver bar – og ud af enhver regning. Har venner i alle byer, også dem han aldrig har besøgt.",
-    item: "Fløjten",
+      "Ejer dansegulvet fra første tone til sidste udsmidning. Har en kendt svaghed for kulørte piger.",
+    item: "Danseskoene",
     hearts: 6,
     magic: 9,
     look: {
@@ -195,10 +199,10 @@ export const characters: Character[] = [
   {
     id: "niklas",
     name: "Niklas",
-    title: "Krønikeskriveren",
+    title: "Mr. International",
     ability:
-      "Husker alt. Det er et problem for alle andre. Har billeder af ting, der officielt aldrig er sket.",
-    item: "Det Magiske Spejl",
+      "Har venner i alle lande, taler alle sprog flydende efter tre øl og kender altid »et sted, hvor de lokale går«.",
+    item: "Passet",
     hearts: 7,
     magic: 7,
     look: {
