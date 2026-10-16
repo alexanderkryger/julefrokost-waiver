@@ -1,103 +1,123 @@
-import Image from "next/image";
+import SignatureForm from "@/components/SignatureForm";
+
+const paragraphs: { title: string; body: string[] }[] = [
+  {
+    title: "Formål og omfang",
+    body: [
+      "Nærværende ansvarsfraskrivelse (herefter »Dokumentet«) regulerer forholdet mellem Arrangørerne og Deltageren (herefter »Den Undertegnede«) i forbindelse med julefrokosten afholdt i Bukarest, Rumænien, anno 2026 (herefter »Begivenheden«).",
+      "Dokumentet træder i kraft ved underskrift og ophører først, når den sidste deltager har genvundet fuld hukommelse, hvilket Arrangørerne ikke forventer sker.",
+    ],
+  },
+  {
+    title: "Risikoerkendelse",
+    body: [
+      "Den Undertegnede erkender, at Begivenheden kan indebære risiko for, men ikke begrænset til: tømmermænd af bibelske proportioner, akut tab af værdighed, spontan dansegulvsaktivitet, uforklarlige blå mærker samt kontakt med rumænsk palinka, hvis alkoholprocent Arrangørerne hverken kender eller ønsker at kende.",
+      "Arrangørerne fraskriver sig ethvert ansvar for følgevirkninger heraf, herunder fysiske, psykiske, økonomiske og sociale – sidstnævnte særligt i relation til gruppechatten.",
+    ],
+  },
+  {
+    title: "Hukommelse og dokumentation",
+    body: [
+      "Den Undertegnede accepterer, at hukommelsen fra og med kl. 23:00 lokal tid kan være fragmenteret, fraværende eller direkte opdigtet.",
+      "Billed- og videomateriale optaget under Begivenheden tilhører fællesskabet og kan til enhver tid anvendes som pressionsmiddel, bryllupstale eller lignende.",
+    ],
+  },
+  {
+    title: "Mystiske kvitteringer",
+    body: [
+      "Kvitteringer, kontoudtog og MobilePay-anmodninger, der dukker op i dagene efter Begivenheden, er Den Undertegnedes eget ansvar – uanset beløb, valuta eller om Den Undertegnede kan redegøre for etablissementets navn.",
+      "Arrangørerne kan ikke stilles til ansvar for kursen på rumænske lei eller for den omstændighed, at »det virkede billigt på det tidspunkt«.",
+    ],
+  },
+  {
+    title: "Tavshedspligt",
+    body: [
+      "Hvad der sker i Bukarest, bliver i Bukarest. Den Undertegnede pålægges ubetinget tavshedspligt over for partnere, forældre, kolleger, svigerfamilie og øvrige uvedkommende.",
+      "Tavshedspligten gælder livet ud og arves af eventuelle efterkommere.",
+    ],
+  },
+  {
+    title: "Adfærdsregler",
+    body: [
+      "Den, der først forlader festen, skylder næste omgang. Den, der falder i søvn, accepterer at blive dekoreret. Den, der siger »jeg tager bare én til«, binder sig hermed juridisk til mindst tre.",
+      "Taler om kryptovaluta, ekskærester og personlige rekorder i bænkpres er forbudt efter kl. 01:00.",
+    ],
+  },
+  {
+    title: "Force majeure",
+    body: [
+      "Arrangørerne hæfter ikke for forsinkelser eller aflysninger forårsaget af naturkatastrofer, flystrejker, vampyrer, Dracula i øvrigt eller deltagere, der »lige skulle noget«.",
+    ],
+  },
+  {
+    title: "Værneting og lovvalg",
+    body: [
+      "Eventuelle tvister afgøres endeligt og uden ankemulighed af gruppens ældste deltager, efter at denne har indtaget mindst to øl. Afgørelsen kan ikke prøves ved danske, rumænske eller internationale domstole.",
+    ],
+  },
+];
 
 export default function Home() {
   return (
-    <div className="font-sans grid grid-rows-[20px_1fr_20px] items-center justify-items-center min-h-screen p-8 pb-20 gap-16 sm:p-20">
-      <main className="flex flex-col gap-[32px] row-start-2 items-center sm:items-start">
-        <Image
-          className="dark:invert"
-          src="/next.svg"
-          alt="Next.js logo"
-          width={180}
-          height={38}
-          priority
-        />
-        <ol className="font-mono list-inside list-decimal text-sm/6 text-center sm:text-left">
-          <li className="mb-2 tracking-[-.01em]">
-            Get started by editing{" "}
-            <code className="bg-black/[.05] dark:bg-white/[.06] font-mono font-semibold px-1 py-0.5 rounded">
-              app/page.tsx
-            </code>
-            .
-          </li>
-          <li className="tracking-[-.01em]">
-            Save and see your changes instantly.
-          </li>
-        </ol>
+    <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-16">
+      <article className="document-frame relative bg-coal/80 px-5 py-10 sm:px-12 sm:py-14">
+        <header className="text-center">
+          <p className="font-display text-[0.7rem] tracking-[0.35em] text-gold-dim uppercase sm:text-xs">
+            Dokument nr. BUC-2026-XMAS · Fortroligt
+          </p>
+          <div className="ornament-rule mt-6 text-xl" aria-hidden>
+            ✠
+          </div>
+          <h1 className="gold-text mt-6 font-display text-3xl leading-tight font-black tracking-wide uppercase sm:text-5xl">
+            Ansvarsfraskrivelse
+          </h1>
+          <p className="mt-3 font-display text-base tracking-[0.25em] text-gold-light uppercase sm:text-xl">
+            Julefrokost Anno 2026
+          </p>
+          <p className="mt-2 font-display text-xs tracking-[0.3em] text-parchment/60 uppercase">
+            Bukarest · Rumænien
+          </p>
+          <div className="ornament-rule mt-6 text-xl" aria-hidden>
+            ✠
+          </div>
+          <p className="mx-auto mt-8 max-w-xl text-lg italic text-parchment/80">
+            Deltagelse sker udelukkende på eget ansvar. Læs nærværende dokument
+            omhyggeligt – eller lad være, det ændrer intet.
+          </p>
+        </header>
 
-        <div className="flex gap-4 items-center flex-col sm:flex-row">
-          <a
-            className="rounded-full border border-solid border-transparent transition-colors flex items-center justify-center bg-foreground text-background gap-2 hover:bg-[#383838] dark:hover:bg-[#ccc] font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 sm:w-auto"
-            href="https://vercel.com/new?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            <Image
-              className="dark:invert"
-              src="/vercel.svg"
-              alt="Vercel logomark"
-              width={20}
-              height={20}
-            />
-            Deploy now
-          </a>
-          <a
-            className="rounded-full border border-solid border-black/[.08] dark:border-white/[.145] transition-colors flex items-center justify-center hover:bg-[#f2f2f2] dark:hover:bg-[#1a1a1a] hover:border-transparent font-medium text-sm sm:text-base h-10 sm:h-12 px-4 sm:px-5 w-full sm:w-auto md:w-[158px]"
-            href="https://nextjs.org/docs?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-            target="_blank"
-            rel="noopener noreferrer"
-          >
-            Read our docs
-          </a>
+        <section className="mt-12 space-y-10">
+          {paragraphs.map((p, i) => (
+            <div key={p.title}>
+              <h2 className="flex items-baseline gap-3 font-display text-lg text-gold sm:text-xl">
+                <span className="text-gold-light">§{i + 1}</span>
+                <span className="tracking-wider uppercase">{p.title}</span>
+              </h2>
+              <div className="mt-3 space-y-3 border-l border-gold/30 pl-4 text-[1.08rem] leading-relaxed text-parchment/90 sm:pl-6 sm:text-lg">
+                {p.body.map((text, j) => (
+                  <p key={j}>
+                    <span className="mr-2 font-display text-sm text-gold-dim">
+                      stk. {j + 1}.
+                    </span>
+                    {text}
+                  </p>
+                ))}
+              </div>
+            </div>
+          ))}
+        </section>
+
+        <div className="ornament-rule mt-14 text-xl" aria-hidden>
+          ✠
         </div>
-      </main>
-      <footer className="row-start-3 flex gap-[24px] flex-wrap items-center justify-center">
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org/learn?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/file.svg"
-            alt="File icon"
-            width={16}
-            height={16}
-          />
-          Learn
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://vercel.com/templates?framework=next.js&utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/window.svg"
-            alt="Window icon"
-            width={16}
-            height={16}
-          />
-          Examples
-        </a>
-        <a
-          className="flex items-center gap-2 hover:underline hover:underline-offset-4"
-          href="https://nextjs.org?utm_source=create-next-app&utm_medium=appdir-template-tw&utm_campaign=create-next-app"
-          target="_blank"
-          rel="noopener noreferrer"
-        >
-          <Image
-            aria-hidden
-            src="/globe.svg"
-            alt="Globe icon"
-            width={16}
-            height={16}
-          />
-          Go to nextjs.org →
-        </a>
-      </footer>
-    </div>
+
+        <SignatureForm />
+
+        <footer className="mt-12 text-center text-xs italic text-parchment/40">
+          Dette dokument har ingen som helst juridisk gyldighed. Det har til
+          gengæld enorm moralsk gyldighed.
+        </footer>
+      </article>
+    </main>
   );
 }
