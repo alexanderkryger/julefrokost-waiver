@@ -81,7 +81,7 @@ export default function SignatureForm() {
           {receipt.name}
         </p>
         <p className="mt-10 font-display text-sm tracking-[0.3em] text-blood uppercase">
-          Hvad der sker i Bukarest, bliver i Bukarest
+          Hvad der sker på Destinationen, bliver på Destinationen
         </p>
       </section>
     );

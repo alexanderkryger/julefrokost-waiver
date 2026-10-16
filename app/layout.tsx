@@ -17,7 +17,7 @@ const garamond = EB_Garamond({
 export const metadata: Metadata = {
   title: "Ansvarsfraskrivelse – Julefrokost Anno 2026",
   description:
-    "Officiel og juridisk fuldstændig uforpligtende ansvarsfraskrivelse for julefrokosten i Bukarest.",
+    "Officiel og juridisk fuldstændig uforpligtende ansvarsfraskrivelse for julefrokosten på en ukendt destination.",
 };
 
 export const viewport: Viewport = {

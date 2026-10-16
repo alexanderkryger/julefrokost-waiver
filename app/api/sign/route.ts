@@ -38,7 +38,7 @@ export async function POST(req: Request) {
   }
 
   const record = {
-    id: `BUC-${Date.now().toString(36).toUpperCase()}`,
+    id: `XMAS-${Date.now().toString(36).toUpperCase()}`,
     name,
     signedAt: new Date().toISOString(),
   };
