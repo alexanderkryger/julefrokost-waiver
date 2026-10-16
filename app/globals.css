@@ -10,6 +10,7 @@
   --color-parchment: #ece3cf;
   --font-display: var(--font-cinzel), "Times New Roman", serif;
   --font-serif: var(--font-garamond), Georgia, serif;
+  --font-pixel: var(--font-press-start), ui-monospace, monospace;
 }
 
 html {
@@ -22,7 +23,7 @@ body {
     radial-gradient(ellipse at bottom, rgba(143, 29, 29, 0.15), transparent 55%),
     #0b0906;
   color: #ece3cf;
-  font-family: var(--font-serif);
+  font-family: var(--font-garamond), Georgia, serif;
   min-height: 100dvh;
 }
 
@@ -58,6 +59,107 @@ body {
   transform: rotate(-12deg);
   border: 3px double #b32626;
   color: #b32626;
-  mix-blend-mode: screen;
+  mix-blend-mode: multiply;
   opacity: 0.85;
+}
+
+/* ---------- 16-bit-helteskærm ---------- */
+.retro-screen {
+  image-rendering: pixelated;
+}
+.retro-screen::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: repeating-linear-gradient(0deg, rgba(0, 0, 0, 0.18) 0 1px, transparent 1px 3px);
+}
+.retro-screen svg {
+  image-rendering: pixelated;
+}
+
+.title-logo {
+  color: #f8c830;
+  text-shadow: 3px 3px 0 #a01818, 6px 6px 0 #401010;
+  letter-spacing: 0.05em;
+}
+
+.zelda-box {
+  background: linear-gradient(180deg, #182878 0%, #101850 100%);
+  border: 4px solid #f8f8f8;
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px #283890, 0 0 0 6px #000, inset 0 0 0 2px #5878c8;
+}
+
+.zelda-tile {
+  background: #101030;
+  border: 3px solid #384078;
+  border-radius: 4px;
+  transition: border-color 80ms steps(1);
+}
+.zelda-tile.is-active {
+  background: #182878;
+  border-color: #f8d848;
+  box-shadow: 0 0 0 2px #000, 0 0 16px rgba(248, 216, 72, 0.35);
+}
+
+.zelda-button {
+  background: #a01818;
+  color: #f8e8a0;
+  border: 4px solid #f8f8f8;
+  border-radius: 6px;
+  box-shadow: 0 0 0 3px #000, 0 6px 0 3px #401010;
+}
+.zelda-button:active {
+  transform: translateY(4px);
+  box-shadow: 0 0 0 3px #000, 0 2px 0 3px #401010;
+}
+
+@keyframes blink {
+  to {
+    visibility: hidden;
+  }
+}
+@keyframes bob {
+  0% {
+    transform: translateY(0);
+  }
+  100% {
+    transform: translateY(-3px);
+  }
+}
+@keyframes tf-glow {
+  0%,
+  100% {
+    filter: drop-shadow(0 0 6px rgba(248, 200, 48, 0.4));
+  }
+  50% {
+    filter: drop-shadow(0 0 22px rgba(248, 200, 48, 0.9));
+  }
+}
+@keyframes item-get {
+  0% {
+    transform: translateY(40px) scale(0.6);
+    opacity: 0;
+  }
+  60% {
+    transform: translateY(-10px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(0) scale(1);
+  }
+}
+@keyframes flash {
+  to {
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .retro-screen *,
+  .retro-screen *::before {
+    animation-duration: 0s !important;
+    animation-iteration-count: 1 !important;
+  }
 }

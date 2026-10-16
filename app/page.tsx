@@ -1,4 +1,5 @@
 import Image from "next/image";
+import Game, { PlayerBanner } from "@/components/Game";
 import SignatureForm from "@/components/SignatureForm";
 import billede from "@/public/julefrokost-billede.jpg";
 
@@ -61,87 +62,90 @@ const paragraphs: { title: string; body: string[] }[] = [
 
 export default function Home() {
   return (
-    <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-16">
-      <article className="document-frame relative bg-coal/80 px-5 py-10 sm:px-12 sm:py-14">
-        <header className="text-center">
-          <p className="font-display text-[0.7rem] tracking-[0.35em] text-gold-dim uppercase sm:text-xs">
-            Dokument nr. XXX-2026-XMAS · Fortroligt
-          </p>
-          <div className="ornament-rule mt-6 text-xl" aria-hidden>
-            ✠
-          </div>
-          <h1 className="gold-text mt-6 font-display text-3xl leading-tight font-black tracking-wide uppercase sm:text-5xl">
-            Ansvarsfraskrivelse
-          </h1>
-          <p className="mt-3 font-display text-base tracking-[0.25em] text-gold-light uppercase sm:text-xl">
-            Julefrokost Anno 2026
-          </p>
-          <p className="mt-2 font-display text-xs tracking-[0.3em] text-parchment/60 uppercase">
-            Destination: ██████████ · Klassificeret
-          </p>
-          <div className="ornament-rule mt-6 text-xl" aria-hidden>
-            ✠
-          </div>
-          <p className="mx-auto mt-8 max-w-xl text-lg italic text-parchment/80">
-            Deltagelse sker udelukkende på eget ansvar. Læs nærværende dokument
-            omhyggeligt – eller lad være, det ændrer intet.
-          </p>
-        </header>
-
-        <figure className="mt-12">
-          <div className="border border-gold/60 p-1.5 shadow-[0_0_40px_rgba(201,162,39,0.15)] sm:p-2">
-            <Image
-              src={billede}
-              alt="De ansvarsfrie deltagere samlet ved det sidste måltid før afrejse til en ukendt destination"
-              placeholder="blur"
-              priority
-              sizes="(max-width: 768px) 100vw, 720px"
-              className="h-auto w-full sepia-[0.15]"
-            />
-          </div>
-          <figcaption className="mt-3 text-center">
-            <span className="font-display text-xs tracking-[0.3em] text-gold uppercase">
-              Bilag A
-            </span>
-            <span className="mt-1 block italic text-parchment/60">
-              Deltagerne, fotograferet forud for Begivenheden. Sidste kendte
-              tilstand af fuld værdighed.
-            </span>
-          </figcaption>
-        </figure>
-
-        <section className="mt-12 space-y-10">
-          {paragraphs.map((p, i) => (
-            <div key={p.title}>
-              <h2 className="flex items-baseline gap-3 font-display text-lg text-gold sm:text-xl">
-                <span className="text-gold-light">§{i + 1}</span>
-                <span className="tracking-wider uppercase">{p.title}</span>
-              </h2>
-              <div className="mt-3 space-y-3 border-l border-gold/30 pl-4 text-[1.08rem] leading-relaxed text-parchment/90 sm:pl-6 sm:text-lg">
-                {p.body.map((text, j) => (
-                  <p key={j}>
-                    <span className="mr-2 font-display text-sm text-gold-dim">
-                      stk. {j + 1}.
-                    </span>
-                    {text}
-                  </p>
-                ))}
-              </div>
+    <Game>
+      <main className="mx-auto w-full max-w-3xl px-4 py-10 sm:px-6 sm:py-16">
+        <article className="document-frame relative bg-coal/80 px-5 py-10 sm:px-12 sm:py-14">
+          <PlayerBanner />
+          <header className="text-center">
+            <p className="font-display text-[0.7rem] tracking-[0.35em] text-gold-dim uppercase sm:text-xs">
+              Dokument nr. XXX-2026-XMAS · Fortroligt
+            </p>
+            <div className="ornament-rule mt-6 text-xl" aria-hidden>
+              ✠
             </div>
-          ))}
-        </section>
+            <h1 className="gold-text mt-6 font-display text-[clamp(1.2rem,5.4vw,3rem)] leading-tight font-black uppercase sm:tracking-wide">
+              Ansvarsfraskrivelse
+            </h1>
+            <p className="mt-3 font-display text-base tracking-[0.25em] text-gold-light uppercase sm:text-xl">
+              Julefrokost Anno 2026
+            </p>
+            <p className="mt-2 font-display text-xs tracking-[0.3em] text-parchment/60 uppercase">
+              Destination: ██████████ · Klassificeret
+            </p>
+            <div className="ornament-rule mt-6 text-xl" aria-hidden>
+              ✠
+            </div>
+            <p className="mx-auto mt-8 max-w-xl text-lg italic text-parchment/80">
+              Deltagelse sker udelukkende på eget ansvar. Læs nærværende
+              dokument omhyggeligt – eller lad være, det ændrer intet.
+            </p>
+          </header>
 
-        <div className="ornament-rule mt-14 text-xl" aria-hidden>
-          ✠
-        </div>
+          <figure className="mt-12">
+            <div className="border border-gold/60 p-1.5 shadow-[0_0_40px_rgba(201,162,39,0.15)] sm:p-2">
+              <Image
+                src={billede}
+                alt="De ansvarsfrie deltagere samlet ved det sidste måltid før afrejse til en ukendt destination"
+                placeholder="blur"
+                priority
+                sizes="(max-width: 768px) 100vw, 720px"
+                className="h-auto w-full sepia-[0.15]"
+              />
+            </div>
+            <figcaption className="mt-3 text-center">
+              <span className="font-display text-xs tracking-[0.3em] text-gold uppercase">
+                Bilag A
+              </span>
+              <span className="mt-1 block italic text-parchment/60">
+                Deltagerne, fotograferet forud for Begivenheden. Sidste kendte
+                tilstand af fuld værdighed.
+              </span>
+            </figcaption>
+          </figure>
 
-        <SignatureForm />
+          <section className="mt-12 space-y-10">
+            {paragraphs.map((p, i) => (
+              <div key={p.title}>
+                <h2 className="flex items-baseline gap-3 font-display text-lg text-gold sm:text-xl">
+                  <span className="text-gold-light">§{i + 1}</span>
+                  <span className="tracking-wider uppercase">{p.title}</span>
+                </h2>
+                <div className="mt-3 space-y-3 border-l border-gold/30 pl-4 text-[1.08rem] leading-relaxed text-parchment/90 sm:pl-6 sm:text-lg">
+                  {p.body.map((text, j) => (
+                    <p key={j}>
+                      <span className="mr-2 font-display text-sm text-gold-dim">
+                        stk. {j + 1}.
+                      </span>
+                      {text}
+                    </p>
+                  ))}
+                </div>
+              </div>
+            ))}
+          </section>
 
-        <footer className="mt-12 text-center text-xs italic text-parchment/40">
-          Dette dokument har ingen som helst juridisk gyldighed. Det har til
-          gengæld enorm moralsk gyldighed.
-        </footer>
-      </article>
-    </main>
+          <div className="ornament-rule mt-14 text-xl" aria-hidden>
+            ✠
+          </div>
+
+          <SignatureForm />
+
+          <footer className="mt-12 text-center text-xs italic text-parchment/40">
+            Dette dokument har ingen som helst juridisk gyldighed. Det har til
+            gengæld enorm moralsk gyldighed.
+          </footer>
+        </article>
+      </main>
+    </Game>
   );
 }

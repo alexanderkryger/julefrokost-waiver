@@ -1,5 +1,5 @@
 import type { Metadata, Viewport } from "next";
-import { Cinzel, EB_Garamond } from "next/font/google";
+import { Cinzel, EB_Garamond, Press_Start_2P } from "next/font/google";
 import "./globals.css";
 
 const cinzel = Cinzel({
@@ -12,6 +12,12 @@ const garamond = EB_Garamond({
   variable: "--font-garamond",
   subsets: ["latin"],
   style: ["normal", "italic"],
+});
+
+const pixel = Press_Start_2P({
+  variable: "--font-press-start",
+  subsets: ["latin"],
+  weight: "400",
 });
 
 export const metadata: Metadata = {
@@ -31,7 +37,7 @@ export default function RootLayout({
 }: Readonly<{ children: React.ReactNode }>) {
   return (
     <html lang="da">
-      <body className={`${cinzel.variable} ${garamond.variable} antialiased`}>
+      <body className={`${cinzel.variable} ${garamond.variable} ${pixel.variable} antialiased`}>
         {children}
       </body>
     </html>

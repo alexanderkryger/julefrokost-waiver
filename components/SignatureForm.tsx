@@ -3,6 +3,8 @@
 import { useRef, useState } from "react";
 import SignatureCanvas from "react-signature-canvas";
 import confetti from "canvas-confetti";
+import { useCharacter } from "./Game";
+import { PixelSprite } from "./PixelArt";
 
 type Receipt = { id: string; name: string; signedAt: string; signature: string };
 
@@ -14,8 +16,9 @@ function fireConfetti() {
 }
 
 export default function SignatureForm() {
+  const { character } = useCharacter();
   const sigRef = useRef<SignatureCanvas>(null);
-  const [name, setName] = useState("");
+  const [name, setName] = useState(character?.name ? `${character.name} ` : "");
   const [accepted, setAccepted] = useState(false);
   const [hasDrawn, setHasDrawn] = useState(false);
   const [submitting, setSubmitting] = useState(false);
@@ -39,7 +42,7 @@ export default function SignatureForm() {
       const res = await fetch("/api/sign", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: name.trim(), signature }),
+        body: JSON.stringify({ name: name.trim(), signature, character: character?.id }),
       });
       const data = await res.json();
       if (!res.ok) throw new Error(data.error ?? "Ukendt fejl");
@@ -60,22 +63,28 @@ export default function SignatureForm() {
     });
     return (
       <section className="relative mt-12 text-center">
-        <div className="stamp pointer-events-none absolute top-2 right-0 px-3 py-1 font-display text-sm font-bold tracking-widest uppercase sm:right-4 sm:text-base">
-          Bindende
-        </div>
         <p className="font-display text-xs tracking-[0.35em] text-gold-dim uppercase">
           Kvittering nr. {receipt.id}
         </p>
+        {character && (
+          <div className="mt-6 flex justify-center">
+            <PixelSprite character={character} scale={5} />
+          </div>
+        )}
         <h2 className="gold-text mt-4 font-display text-2xl font-black uppercase sm:text-4xl">
           Du er nu bundet til festen
         </h2>
         <p className="mx-auto mt-4 max-w-md text-lg italic text-parchment/80">
-          {receipt.name} har den {signedAt} uigenkaldeligt frasagt sig enhver
+          {receipt.name}
+          {character ? ` (${character.title})` : ""} har den {signedAt} uigenkaldeligt frasagt sig enhver
           ret til at klage. Der er ingen vej tilbage.
         </p>
-        <div className="mx-auto mt-8 max-w-sm border-b border-gold/50 pb-2">
+        <div className="relative mx-auto mt-8 max-w-sm border border-gold/50 bg-parchment p-2">
           {/* eslint-disable-next-line @next/next/no-img-element */}
           <img src={receipt.signature} alt={`Underskrift af ${receipt.name}`} className="mx-auto h-28 w-auto" />
+          <div className="stamp pointer-events-none absolute right-2 bottom-2 px-3 py-1 font-display text-sm font-bold tracking-widest uppercase sm:right-4 sm:text-base">
+            Bindende
+          </div>
         </div>
         <p className="mt-2 font-display text-xs tracking-widest text-parchment/60 uppercase">
           {receipt.name}

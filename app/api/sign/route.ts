@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { characterIds } from "@/lib/characters";
 
 // Valgfri lagring: Hvis et Upstash Redis-lager er tilknyttet via Vercel Marketplace,
 // sætter Vercel automatisk KV_REST_API_URL / KV_REST_API_TOKEN (eller UPSTASH_*).
@@ -20,7 +21,7 @@ async function redis(command: (string | number)[]) {
 }
 
 export async function POST(req: Request) {
-  let body: { name?: unknown; signature?: unknown };
+  let body: { name?: unknown; signature?: unknown; character?: unknown };
   try {
     body = await req.json();
   } catch {
@@ -29,6 +30,8 @@ export async function POST(req: Request) {
 
   const name = typeof body.name === "string" ? body.name.trim().slice(0, 120) : "";
   const signature = typeof body.signature === "string" ? body.signature : "";
+  const character =
+    typeof body.character === "string" && characterIds.includes(body.character) ? body.character : null;
 
   if (name.length < 2) {
     return NextResponse.json({ error: "Angiv dit fulde navn." }, { status: 400 });
@@ -40,6 +43,7 @@ export async function POST(req: Request) {
   const record = {
     id: `XMAS-${Date.now().toString(36).toUpperCase()}`,
     name,
+    character,
     signedAt: new Date().toISOString(),
   };
 
@@ -69,8 +73,8 @@ export async function GET(req: Request) {
   }
   const raw: string[] = await redis(["LRANGE", KEY, 0, -1]);
   const signatures = raw.map((r) => {
-    const { id, name, signedAt } = JSON.parse(r);
-    return { id, name, signedAt };
+    const { id, name, character, signedAt } = JSON.parse(r);
+    return { id, name, character, signedAt };
   });
   return NextResponse.json({ count: signatures.length, signatures });
 }
